@@ -12,12 +12,15 @@ public class Manager : MonoBehaviour
     private const int MIN_CAMERA_SIZE = 5;
     private const int MAX_CAMERA_SIZE = 15;
     private const KeyCode KEY_RESETNODES = KeyCode.C;
+    private const KeyCode KEY_FILLNODES = KeyCode.F;
 
 
     [Header("Manager Variables")]
     private const int ROW_COUNT = MAX_CAMERA_SIZE * 2;
     private readonly Node[] nodeArray = new Node[ROW_COUNT * ROW_COUNT];
     private int currentCameraSize;
+    private bool leftClicking = false;
+    private bool rightClicking = false;
 
 
     [Header("Object References")]
@@ -53,12 +56,15 @@ public class Manager : MonoBehaviour
  
     void Update()
     {
-        if(Input.GetMouseButton(0))
+        leftClicking = !rightClicking && Input.GetMouseButton(0);
+        rightClicking = !leftClicking && Input.GetMouseButton(1);
+
+        if(leftClicking)
         {
             Vector2Int mousePosition = Vector2Int.RoundToInt(Camera.main.ScreenToWorldPoint(Input.mousePosition));
             ToggleNode(mousePosition, true);
         }
-        else if(Input.GetMouseButton(1))
+        if(rightClicking)
         {
             Vector2Int mousePosition = Vector2Int.RoundToInt(Camera.main.ScreenToWorldPoint(Input.mousePosition));
             ToggleNode(mousePosition, false);
@@ -73,10 +79,16 @@ public class Manager : MonoBehaviour
             ChangeGridSize(-1);
         }
 
-        if(Input.GetKeyUp(KEY_RESETNODES))
+        if (Input.GetKeyUp(KEY_RESETNODES))
         {
             for (int i = 0; i < nodeArray.Length; i++)
                 nodeArray[i].SetNodeBlocked(false);
+        }
+
+        if (Input.GetKeyUp(KEY_FILLNODES))
+        {
+            for (int i = 0; i < nodeArray.Length; i++)
+                nodeArray[i].SetNodeBlocked(true);
         }
     }
 

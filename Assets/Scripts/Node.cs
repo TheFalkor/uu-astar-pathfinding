@@ -15,7 +15,7 @@ public class Node : MonoBehaviour
     private bool visible = true;
 
 
-    private void Start()
+    private void Awake()
     {
         render = GetComponent<SpriteRenderer>();
     }
