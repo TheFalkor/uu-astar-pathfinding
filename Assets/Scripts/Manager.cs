@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class Manager : MonoBehaviour
 {
-
     [Header("Inspector References")]
     [SerializeField] private GameObject nodePrefab;
 
@@ -12,34 +11,38 @@ public class Manager : MonoBehaviour
     [Header("Settings")]
     private const int MIN_CAMERA_SIZE = 5;
     private const int MAX_CAMERA_SIZE = 15;
+    private const KeyCode KEY_RESETNODES = KeyCode.C;
+
+
+    [Header("Manager Variables")]
     private const int ROW_COUNT = MAX_CAMERA_SIZE * 2;
+    private readonly Node[] nodeArray = new Node[ROW_COUNT * ROW_COUNT];
+    private int currentCameraSize;
 
-    private KeyCode KEY_CLEARNODES = KeyCode.C;
 
-
-    [Header("GameObject References")]
+    [Header("Object References")]
     private Camera cam;
-    private readonly Node[] nodeArray = new Node[MAX_CAMERA_SIZE * MAX_CAMERA_SIZE * 4];
-    
-
+    private Transform nodeParentTransform;
     
 
     void Start()
     {
         cam = Camera.main;
-
+        currentCameraSize = (int)cam.orthographicSize;
+        nodeParentTransform = new GameObject("Nodes").transform;
+        
         int minVisibleIndex = (MAX_CAMERA_SIZE - MIN_CAMERA_SIZE) * ROW_COUNT;
         int maxVisibleIndex = nodeArray.Length - minVisibleIndex - 1;
         for(int i = 0; i < nodeArray.Length; i++)
         {
-            Node node = Instantiate(nodePrefab, new Vector2(-MAX_CAMERA_SIZE + 0.5f + i % ROW_COUNT, MAX_CAMERA_SIZE - 0.5f - i / ROW_COUNT), Quaternion.identity).GetComponent<Node>();
+            Node node = Instantiate(nodePrefab, new Vector2(-MAX_CAMERA_SIZE + i % ROW_COUNT, MAX_CAMERA_SIZE - i / ROW_COUNT), Quaternion.identity, nodeParentTransform).GetComponent<Node>();
             if (i < minVisibleIndex || i > maxVisibleIndex)
                 node.ToggleNodeVisible();
             else
             {
                 if (i % ROW_COUNT < MAX_CAMERA_SIZE - MIN_CAMERA_SIZE)
                     node.ToggleNodeVisible();
-                else if (i % ROW_COUNT > ROW_COUNT - MAX_CAMERA_SIZE + MIN_CAMERA_SIZE - 1)
+                else if (i % ROW_COUNT + 1 > ROW_COUNT - MAX_CAMERA_SIZE + MIN_CAMERA_SIZE)
                     node.ToggleNodeVisible();
             }
 
@@ -47,28 +50,18 @@ public class Manager : MonoBehaviour
         }
     }
 
-    
+ 
     void Update()
     {
         if(Input.GetMouseButton(0))
         {
-            Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            RaycastHit2D hit = Physics2D.Raycast(mousePosition, Vector2.zero);
-
-            if(hit)
-            {
-                hit.transform.GetComponent<Node>().SetNodeBlocked(true);
-            }
+            Vector2Int mousePosition = Vector2Int.RoundToInt(Camera.main.ScreenToWorldPoint(Input.mousePosition));
+            ToggleNode(mousePosition, true);
         }
         else if(Input.GetMouseButton(1))
         {
-            Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            RaycastHit2D hit = Physics2D.Raycast(mousePosition, Vector2.zero);
-
-            if (hit)
-            {
-                hit.transform.GetComponent<Node>().SetNodeBlocked(false);
-            }
+            Vector2Int mousePosition = Vector2Int.RoundToInt(Camera.main.ScreenToWorldPoint(Input.mousePosition));
+            ToggleNode(mousePosition, false);
         }
 
         if(Input.mouseScrollDelta.y < 0)
@@ -80,45 +73,51 @@ public class Manager : MonoBehaviour
             ChangeGridSize(-1);
         }
 
-        if(Input.GetKeyUp(KEY_CLEARNODES))
+        if(Input.GetKeyUp(KEY_RESETNODES))
         {
             for (int i = 0; i < nodeArray.Length; i++)
                 nodeArray[i].SetNodeBlocked(false);
         }
     }
 
+
+    private void ToggleNode(Vector2Int position, bool blocked)
+    {
+        if (position.x < -currentCameraSize || position.x >= currentCameraSize || position.y <= -currentCameraSize || position.y > currentCameraSize)
+            return;
+
+        int index = (position.x + MAX_CAMERA_SIZE) % ROW_COUNT + (MAX_CAMERA_SIZE - position.y) * ROW_COUNT;
+        nodeArray[index].SetNodeBlocked(blocked);
+    }
+
+
     private void ChangeGridSize(int direction)
     {
-        if (cam.orthographicSize + direction > MAX_CAMERA_SIZE || cam.orthographicSize + direction < MIN_CAMERA_SIZE)
+        if (currentCameraSize + direction > MAX_CAMERA_SIZE || currentCameraSize + direction < MIN_CAMERA_SIZE)
             return;
 
         if(direction > 0)
-            cam.orthographicSize += 1;
+            currentCameraSize += 1;
 
-        int size = (int)cam.orthographicSize * 2;
-        int count = size * 2 + (size - 2) * 2;
 
-        int startIndex = (MAX_CAMERA_SIZE - (int)cam.orthographicSize) * MAX_CAMERA_SIZE * 2 + MAX_CAMERA_SIZE - (int)cam.orthographicSize;
-        
-        for (int i = 0; i < count; i++)
-        {
-            if (i < size)
-            {
-                nodeArray[startIndex + i].ToggleNodeVisible();
-            }
-            else if(i < count - size)
-            {
-                int index = startIndex + ROW_COUNT * ((i - size) / 2 + 1) + (i + 1) % 2 * (size - 1);
-                nodeArray[index].ToggleNodeVisible();
-            }
-            else
-            {
-                int index = startIndex + (size -1)* ROW_COUNT + (i - count + size);
-                nodeArray[index].ToggleNodeVisible();
-            }
-        }
+        int sideLength = currentCameraSize * 2 - 1;
+        int columnCount = sideLength * 2;
+
+        int startIndex = (MAX_CAMERA_SIZE - currentCameraSize) * ROW_COUNT + MAX_CAMERA_SIZE - currentCameraSize;
+
+        for (int i = 0; i <= sideLength; i++)    // Top row
+            nodeArray[startIndex + i].ToggleNodeVisible();
+
+        for (int i = 2; i < columnCount; i++)   // Columns
+            nodeArray[startIndex + (i / 2) * ROW_COUNT + (i + 1) % 2 * sideLength].ToggleNodeVisible();
+
+        for (int i = 0; i <= sideLength; i++)    // Bottom row
+            nodeArray[startIndex + sideLength * ROW_COUNT + i].ToggleNodeVisible();
+
 
         if (direction < 0)
-            cam.orthographicSize -= 1;
+            currentCameraSize -= 1;
+
+        cam.orthographicSize = currentCameraSize;
     }
 }

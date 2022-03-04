@@ -4,24 +4,20 @@ using UnityEngine;
 
 public class Node : MonoBehaviour
 {
-    public Color clearColor;
-    public Color blockedColor;
+    [Header("Node Tools")]
+    private Color COLOR_EMPTY = Color.white;
+    private Color COLOR_BLOCKED = new Color(35 / 255f, 35 / 255f, 35 / 255f);
+    private SpriteRenderer render;
+
+
+    [Header("Node Variables")]
     private bool blocked = false;
     private bool visible = true;
 
 
-    public void ToggleNodeBlocked()
+    private void Start()
     {
-        blocked = !blocked;
-
-        if(blocked)
-        {
-            GetComponent<SpriteRenderer>().color = blockedColor;
-        }
-        else
-        {
-            GetComponent<SpriteRenderer>().color = clearColor;
-        }
+        render = GetComponent<SpriteRenderer>();
     }
 
     public void SetNodeBlocked(bool blocked)
@@ -32,13 +28,9 @@ public class Node : MonoBehaviour
         this.blocked = blocked;
 
         if (blocked)
-        {
-            GetComponent<SpriteRenderer>().color = blockedColor;
-        }
+            render.color = COLOR_BLOCKED;
         else
-        {
-            GetComponent<SpriteRenderer>().color = clearColor;
-        }
+            render.color = COLOR_EMPTY;
     }
 
     public void ToggleNodeVisible()
