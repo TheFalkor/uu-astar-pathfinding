@@ -14,12 +14,16 @@ public class Manager : MonoBehaviour
     private const int MAX_CAMERA_SIZE = 15;
     private const int ROW_COUNT = MAX_CAMERA_SIZE * 2;
 
+    private KeyCode KEY_CLEARNODES = KeyCode.C;
+
 
     [Header("GameObject References")]
     private Camera cam;
     private readonly Node[] nodeArray = new Node[MAX_CAMERA_SIZE * MAX_CAMERA_SIZE * 4];
-    private readonly List<Node> nodeList = new List<Node>();
     
+
+    
+
     void Start()
     {
         cam = Camera.main;
@@ -30,13 +34,13 @@ public class Manager : MonoBehaviour
         {
             Node node = Instantiate(nodePrefab, new Vector2(-MAX_CAMERA_SIZE + 0.5f + i % ROW_COUNT, MAX_CAMERA_SIZE - 0.5f - i / ROW_COUNT), Quaternion.identity).GetComponent<Node>();
             if (i < minVisibleIndex || i > maxVisibleIndex)
-                node.HideNode();
+                node.ToggleNodeVisible();
             else
             {
                 if (i % ROW_COUNT < MAX_CAMERA_SIZE - MIN_CAMERA_SIZE)
-                    node.HideNode();
+                    node.ToggleNodeVisible();
                 else if (i % ROW_COUNT > ROW_COUNT - MAX_CAMERA_SIZE + MIN_CAMERA_SIZE - 1)
-                    node.HideNode();
+                    node.ToggleNodeVisible();
             }
 
             nodeArray[i] = node;
@@ -46,33 +50,51 @@ public class Manager : MonoBehaviour
     
     void Update()
     {
-        if(Input.GetMouseButtonUp(0))
+        if(Input.GetMouseButton(0))
         {
             Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             RaycastHit2D hit = Physics2D.Raycast(mousePosition, Vector2.zero);
 
             if(hit)
             {
-                hit.transform.GetComponent<Node>().ToggleNode();
+                hit.transform.GetComponent<Node>().SetNodeBlocked(true);
+            }
+        }
+        else if(Input.GetMouseButton(1))
+        {
+            Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            RaycastHit2D hit = Physics2D.Raycast(mousePosition, Vector2.zero);
+
+            if (hit)
+            {
+                hit.transform.GetComponent<Node>().SetNodeBlocked(false);
             }
         }
 
         if(Input.mouseScrollDelta.y < 0)
         {
-            IncreaseGridSize();
+            ChangeGridSize(1);
         }
         else if(Input.mouseScrollDelta.y > 0)
         {
-            DecreaseGridSize();
+            ChangeGridSize(-1);
+        }
+
+        if(Input.GetKeyUp(KEY_CLEARNODES))
+        {
+            for (int i = 0; i < nodeArray.Length; i++)
+                nodeArray[i].SetNodeBlocked(false);
         }
     }
 
-    private void IncreaseGridSize()
+    private void ChangeGridSize(int direction)
     {
-        if (cam.orthographicSize >= MAX_CAMERA_SIZE)
+        if (cam.orthographicSize + direction > MAX_CAMERA_SIZE || cam.orthographicSize + direction < MIN_CAMERA_SIZE)
             return;
 
-        cam.orthographicSize += 1;
+        if(direction > 0)
+            cam.orthographicSize += 1;
+
         int size = (int)cam.orthographicSize * 2;
         int count = size * 2 + (size - 2) * 2;
 
@@ -82,48 +104,21 @@ public class Manager : MonoBehaviour
         {
             if (i < size)
             {
-                nodeArray[startIndex + i].ShowNode();
+                nodeArray[startIndex + i].ToggleNodeVisible();
             }
             else if(i < count - size)
             {
                 int index = startIndex + ROW_COUNT * ((i - size) / 2 + 1) + (i + 1) % 2 * (size - 1);
-                nodeArray[index].ShowNode();
+                nodeArray[index].ToggleNodeVisible();
             }
             else
             {
                 int index = startIndex + (size -1)* ROW_COUNT + (i - count + size);
-                nodeArray[index].ShowNode();
+                nodeArray[index].ToggleNodeVisible();
             }
         }
-    }
 
-    private void DecreaseGridSize()
-    {
-        if (cam.orthographicSize <= MIN_CAMERA_SIZE)
-            return;
-
-        int size = (int)cam.orthographicSize * 2;
-        int count = size * 2 + (size - 2) * 2;
-        int startIndex = (MAX_CAMERA_SIZE - (int)cam.orthographicSize) * MAX_CAMERA_SIZE * 2 + MAX_CAMERA_SIZE - (int)cam.orthographicSize;
-
-        cam.orthographicSize -= 1;
-
-        for (int i = 0; i < count; i++)
-        {
-            if (i < size)
-            {
-                nodeArray[startIndex + i].HideNode();
-            }
-            else if (i < count - size)
-            {
-                int index = startIndex + ROW_COUNT * ((i - size) / 2 + 1) + (i + 1) % 2 * (size - 1);
-                nodeArray[index].HideNode();
-            }
-            else
-            {
-                int index = startIndex + (size - 1) * ROW_COUNT + (i - count + size);
-                nodeArray[index].HideNode();
-            }
-        }
+        if (direction < 0)
+            cam.orthographicSize -= 1;
     }
 }

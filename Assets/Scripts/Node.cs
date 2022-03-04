@@ -7,9 +7,10 @@ public class Node : MonoBehaviour
     public Color clearColor;
     public Color blockedColor;
     private bool blocked = false;
+    private bool visible = true;
 
 
-    public void ToggleNode()
+    public void ToggleNodeBlocked()
     {
         blocked = !blocked;
 
@@ -23,13 +24,26 @@ public class Node : MonoBehaviour
         }
     }
 
-    public void HideNode()
+    public void SetNodeBlocked(bool blocked)
     {
-        gameObject.SetActive(false);
+        if (this.blocked == blocked)
+            return;
+
+        this.blocked = blocked;
+
+        if (blocked)
+        {
+            GetComponent<SpriteRenderer>().color = blockedColor;
+        }
+        else
+        {
+            GetComponent<SpriteRenderer>().color = clearColor;
+        }
     }
 
-    public void ShowNode()
+    public void ToggleNodeVisible()
     {
-        gameObject.SetActive(true);
+        visible = !visible;
+        gameObject.SetActive(visible);
     }
 }
