@@ -11,7 +11,9 @@ public class Node : MonoBehaviour
 
 
     [Header("Node Variables")]
-    private bool blocked = false;
+    private GameObject occupyingEntity;
+    private bool occupied = false;
+    public bool blocked = false;
     private bool visible = true;
 
 
@@ -20,9 +22,10 @@ public class Node : MonoBehaviour
         render = GetComponent<SpriteRenderer>();
     }
 
+
     public void SetNodeBlocked(bool blocked)
     {
-        if (this.blocked == blocked)
+        if (this.blocked == blocked || this.occupied == true)
             return;
 
         this.blocked = blocked;
@@ -33,9 +36,45 @@ public class Node : MonoBehaviour
             render.color = COLOR_EMPTY;
     }
 
+
+    public void SetNodeVisible(bool visible)
+    {
+        this.visible = visible;
+        gameObject.SetActive(visible);
+
+        if (visible)
+            Manager.instance.AddNode(this);
+        else
+            Manager.instance.RemoveNode(this);
+
+        if(occupied)
+            occupyingEntity.SetActive(visible);
+    }
+
+
     public void ToggleNodeVisible()
     {
         visible = !visible;
         gameObject.SetActive(visible);
+        
+        if (visible)
+            Manager.instance.AddNode(this);
+        else
+            Manager.instance.RemoveNode(this);
+
+        if(occupied)
+            occupyingEntity.SetActive(visible);
+    }
+
+
+    public void SetOccupied(GameObject entity)
+    {
+        occupyingEntity = entity;
+        occupied = entity ? true : false;
+    }
+
+    public bool GetBlocked()
+    {
+        return occupied || blocked;
     }
 }
