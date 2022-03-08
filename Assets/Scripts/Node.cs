@@ -11,7 +11,7 @@ public class Node : MonoBehaviour
 
 
     [Header("Node Variables")]
-    private GameObject occupyingEntity;
+    private Entity occupyingEntity;
     private bool occupied = false;
     public bool blocked = false;
     private bool visible = true;
@@ -42,13 +42,8 @@ public class Node : MonoBehaviour
         this.visible = visible;
         gameObject.SetActive(visible);
 
-        if (visible)
-            Manager.instance.AddNode(this);
-        else
-            Manager.instance.RemoveNode(this);
-
-        if(occupied)
-            occupyingEntity.SetActive(visible);
+        if (occupied)
+            occupyingEntity.gameObject.SetActive(visible);
     }
 
 
@@ -58,19 +53,24 @@ public class Node : MonoBehaviour
         gameObject.SetActive(visible);
         
         if (visible)
-            Manager.instance.AddNode(this);
+            Manager.instance.grid.AddVisibleNode(this);
         else
-            Manager.instance.RemoveNode(this);
+            Manager.instance.grid.RemoveVisibleNode(this);
 
         if(occupied)
-            occupyingEntity.SetActive(visible);
+            occupyingEntity.gameObject.SetActive(visible);
     }
 
 
-    public void SetOccupied(GameObject entity)
+    public void SetEntity(Entity entity)
     {
         occupyingEntity = entity;
-        occupied = entity ? true : false;
+        occupied = entity != null;
+    }
+
+    public Entity GetEntity()
+    {
+        return occupyingEntity;
     }
 
     public bool GetBlocked()
