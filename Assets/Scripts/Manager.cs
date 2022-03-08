@@ -13,6 +13,7 @@ public class Manager : MonoBehaviour
     private const KeyCode KEY_RESETNODES = KeyCode.C;
     private const KeyCode KEY_FILLNODES = KeyCode.F;
     private const KeyCode KEY_RANDOMENTITY = KeyCode.R;
+    private const KeyCode KEY_NOISEPATTERN = KeyCode.Q;
     private const KeyCode KEY_STARTALGORITHM = KeyCode.Space;
 
 
@@ -105,7 +106,12 @@ public class Manager : MonoBehaviour
             grid.FillNodes();
         }
 
-        if(Input.GetKeyUp(KEY_RANDOMENTITY))
+        if (Input.GetKeyUp(KEY_NOISEPATTERN))
+        {
+            grid.NoisePattern();
+        }
+
+        if (Input.GetKeyUp(KEY_RANDOMENTITY))
         {
             grid.RandomizeEntityPosition(spaceship);
             grid.RandomizeEntityPosition(tradingPost);

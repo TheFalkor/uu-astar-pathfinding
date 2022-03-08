@@ -14,13 +14,13 @@ public class AStarPath
         closedNodes.Clear();
         path.Clear();
 
+        Manager.instance.grid.ClearDebug();
         Vector2Int targetPosition = targetNode.GetPosition();
 
         openNodes.Add(new AStarNode(startNode));
 
         while (openNodes.Count > 0)
         {
-            Debug.Log("a");
             int nodeIndex = 0;
             for (int i = 0; i < openNodes.Count; i++)
             {
@@ -106,7 +106,6 @@ public class AStarPath
 
         for (int i = path.Count - 1; i >= 0; i--)
         {
-            //Debug.Log(i + " : " + path[i].GetPosition());
             path[i].DebugColor(0);
         }
     }

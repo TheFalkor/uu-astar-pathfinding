@@ -111,6 +111,22 @@ public class GridController
             nodeArray[i].SetNodeBlocked(true);
     }
 
+    public void NoisePattern()
+    {
+        ResetNodes();
+        for (int i = 0; i < nodeArray.Length; i++)
+        {
+            if (Random.Range(0, 100) < 30)
+                nodeArray[i].SetNodeBlocked(true);
+        }
+    }
+
+    public void ClearDebug()
+    {
+        for (int i = 0; i < nodeArray.Length; i++)
+            nodeArray[i].ClearDebugColor();
+    }
+
 
     public void AddVisibleNode(Node node)
     {

@@ -108,4 +108,12 @@ public class Node : MonoBehaviour
         else
             render.color = Color.green;
     }
+
+    public void ClearDebugColor()
+    {
+        if (blocked)
+            render.color = COLOR_BLOCKED;
+        else
+            render.color = COLOR_EMPTY;
+    }
 }
