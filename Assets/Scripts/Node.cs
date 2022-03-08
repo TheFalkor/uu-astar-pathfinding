@@ -11,15 +11,29 @@ public class Node : MonoBehaviour
 
 
     [Header("Node Variables")]
+    private readonly List<Node> neighbourList = new List<Node>();
+    private Vector2Int position;
     private Entity occupyingEntity;
     private bool occupied = false;
     public bool blocked = false;
-    private bool visible = true;
+    public bool visible = true;
 
 
     private void Awake()
     {
         render = GetComponent<SpriteRenderer>();
+        position = Vector2Int.RoundToInt(transform.position);
+    }
+
+
+    public void AddNeighbour(Node node)
+    {
+        neighbourList.Add(node);
+    }
+
+    public List<Node> GetNeighbours()
+    {
+        return neighbourList;
     }
 
 
@@ -73,8 +87,25 @@ public class Node : MonoBehaviour
         return occupyingEntity;
     }
 
+
     public bool GetBlocked()
     {
         return occupied || blocked;
+    }
+
+
+    public Vector2Int GetPosition()
+    {
+        return position;
+    }
+
+    public void DebugColor(int a)
+    {
+        if (a == 0)
+            render.color = Color.red;
+        else if (a == 1)
+            render.color = Color.blue;
+        else
+            render.color = Color.green;
     }
 }

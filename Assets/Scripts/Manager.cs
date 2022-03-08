@@ -13,6 +13,7 @@ public class Manager : MonoBehaviour
     private const KeyCode KEY_RESETNODES = KeyCode.C;
     private const KeyCode KEY_FILLNODES = KeyCode.F;
     private const KeyCode KEY_RANDOMENTITY = KeyCode.R;
+    private const KeyCode KEY_STARTALGORITHM = KeyCode.Space;
 
 
     [Header("Manager Variables")]
@@ -31,7 +32,7 @@ public class Manager : MonoBehaviour
 
     [Header("Public References")]
     public static Manager instance;
-    public Grid grid;
+    public GridController grid;
     
 
     void Start()
@@ -48,7 +49,7 @@ public class Manager : MonoBehaviour
         fallenStar = GameObject.Find("FallenStar").GetComponent<Entity>();
         starchaser = GameObject.Find("Starchaser").GetComponent<Entity>();
 
-        grid = new Grid(nodePrefab, START_SIZE);
+        grid = new GridController(nodePrefab, START_SIZE);
 
         grid.RandomizeEntityPosition(spaceship);
         grid.RandomizeEntityPosition(tradingPost);
@@ -56,7 +57,7 @@ public class Manager : MonoBehaviour
         grid.RandomizeEntityPosition(starchaser);
     }
 
-    
+
     void Update()
     {
         leftClicking = !rightClicking && Input.GetMouseButton(0);
@@ -112,6 +113,11 @@ public class Manager : MonoBehaviour
             grid.RandomizeEntityPosition(starchaser);
             SelectEntity(null);
         }
+
+        if(Input.GetKeyUp(KEY_STARTALGORITHM))   // Just for testing
+        {
+            starchaser.GetComponent<Starchaser>().Test(grid.GetNode(starchaser.GetPosition()), grid.GetNode(fallenStar.GetPosition()));
+        }    
     }
 
 

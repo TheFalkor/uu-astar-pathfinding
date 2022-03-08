@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Grid
+public class GridController
 {
     [Header("Grid Settings")]
     private const int MIN_CAMERA_SIZE = 5;
@@ -16,7 +16,7 @@ public class Grid
     private readonly List<Node> visibleNodeList = new List<Node>();
 
 
-    public Grid(GameObject nodePrefab, int startSize)
+    public GridController(GameObject nodePrefab, int startSize)
     {
         currentCameraSize = startSize;
         Transform nodeParent = new GameObject("Nodes").transform;
@@ -40,6 +40,20 @@ public class Grid
                 node.SetNodeVisible(false);
 
             nodeArray[i] = node;
+        }
+
+        for (int i = 0; i < nodeArray.Length; i++)
+        {
+            Node node = nodeArray[i];
+
+            if (i % ROW_COUNT != 0)
+                node.AddNeighbour(nodeArray[i - 1]);
+            if (i % ROW_COUNT != ROW_COUNT - 1)
+                node.AddNeighbour(nodeArray[i + 1]);
+            if (i / ROW_COUNT != 0)
+                node.AddNeighbour(nodeArray[i - ROW_COUNT]);
+            if (i / ROW_COUNT != ROW_COUNT - 1)
+                node.AddNeighbour(nodeArray[i + ROW_COUNT]);
         }
     }
 
@@ -154,7 +168,16 @@ public class Grid
 
     public Entity GetEntity(Vector2Int position)
     {
+        if (position.x < -currentCameraSize || position.x >= currentCameraSize || position.y <= -currentCameraSize || position.y > currentCameraSize)
+            return null;
+
         int index = (position.x + MAX_CAMERA_SIZE) % ROW_COUNT + (MAX_CAMERA_SIZE - position.y) * ROW_COUNT;
         return nodeArray[index].GetEntity();
+    }
+
+    public Node GetNode(Vector2Int position)
+    {
+        int index = (position.x + MAX_CAMERA_SIZE) % ROW_COUNT + (MAX_CAMERA_SIZE - position.y) * ROW_COUNT;
+        return nodeArray[index];
     }
 }
