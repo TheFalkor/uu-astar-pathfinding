@@ -116,7 +116,7 @@ public class GridController
         ResetNodes();
         for (int i = 0; i < nodeArray.Length; i++)
         {
-            if (Random.Range(0, 100) < 30)
+            if (Random.Range(0, 100) < 40)
                 nodeArray[i].SetNodeBlocked(true);
         }
     }

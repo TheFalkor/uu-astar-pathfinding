@@ -19,7 +19,8 @@ public class AStarPath
 
         openNodes.Add(new AStarNode(startNode));
 
-        while (openNodes.Count > 0)
+        bool targetFound = false;
+        while (openNodes.Count > 0 && !targetFound)
         {
             int nodeIndex = 0;
             for (int i = 0; i < openNodes.Count; i++)
@@ -38,25 +39,24 @@ public class AStarPath
                 if (neighbourList[i] == targetNode)
                 {
                     path.Add(neighbourList[i]);
-
+                    targetFound = true;
                     while (currentNode != null)
                     {
                         path.Add(currentNode.node);
                         currentNode = currentNode.parentNode;
                     }
-                    openNodes.Clear();
                     break;
                 }
                 else
                 {
                     if (neighbourList[i].blocked || !neighbourList[i].visible)
                         continue;
-                    neighbourList[i].DebugColor(2);
 
-                    int g = currentNode.g + 10;
+                    int g = currentNode.g + 1;
 
                     Vector2Int neighbourPosition = neighbourList[i].GetPosition();
                     int h = Mathf.Abs(targetPosition.x - neighbourPosition.x) + Mathf.Abs(targetPosition.y - neighbourPosition.y);
+                    h *= 10;
 
                     int f = g + h;
 
@@ -96,13 +96,19 @@ public class AStarPath
                     if (!handled)
                     {
                         openNodes.Add(new AStarNode(neighbourList[i], currentNode, h, g, f));
-                        currentNode.node.DebugColor(1);
                     }
                 }
             }
 
-            closedNodes.Add(currentNode);
+            if(!targetFound)
+                closedNodes.Add(currentNode);
         }
+
+        for (int i = 0; i < openNodes.Count; i++)
+            openNodes[i].node.DebugColor(1);
+
+        for (int i = 0; i < closedNodes.Count; i++)
+            closedNodes[i].node.DebugColor(2);
 
         for (int i = path.Count - 1; i >= 0; i--)
         {

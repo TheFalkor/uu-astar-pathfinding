@@ -4,26 +4,24 @@ using UnityEngine;
 
 public enum StarchaserState
 {
-    LOCATE_STAR,
-    LOCATE_TRADINGPOST,
-    LOCATE_SPACESHIP,
-    GOTO_STAR,
-    GOTO_TRADINGPOST,
-    GOTO_SPACESHIP,
+    LOCATE_TARGET,
+    GOTO_TARGET,
+    TRADE,
+    REST,
     STUCK
 }
 
 public class Starchaser : MonoBehaviour
 {
-    private AStarPath algorithm = new AStarPath();
+    private readonly AStarPath algorithm = new AStarPath();
     private StarchaserState state;
-    private const int MAX_STAMINA = 10;
+    private const int MAX_STAMINA = 15;
     private int currentStamina;
 
     void Start()
     {
         currentStamina = MAX_STAMINA;
-        state = StarchaserState.LOCATE_STAR;
+        state = StarchaserState.LOCATE_TARGET;
     }
 
     

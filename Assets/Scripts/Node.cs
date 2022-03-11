@@ -104,9 +104,9 @@ public class Node : MonoBehaviour
         if (a == 0)
             render.color = Color.red;
         else if (a == 1)
-            render.color = Color.blue;
-        else
             render.color = Color.green;
+        else
+            render.color = Color.blue;
     }
 
     public void ClearDebugColor()
