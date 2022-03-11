@@ -18,6 +18,8 @@ public class Starchaser : MonoBehaviour
     private const int MAX_STAMINA = 15;
     private int currentStamina;
 
+    private List<Node> path;
+
     void Start()
     {
         currentStamina = MAX_STAMINA;
@@ -32,6 +34,14 @@ public class Starchaser : MonoBehaviour
 
     public void Test(Node start, Node end)
     {
-        algorithm.CalculatePath(start, end);
+        path = algorithm.CalculatePath(start, end);
+        print(path.Count);
+        for (int i = path.Count - 1; i >= 0; i--)
+        {
+            if (i > 0 && i < path.Count - 1)
+            {
+                path[i].DebugColor(path[i - 1].GetPosition(), path[i + 1].GetPosition(), true);
+            }
+        }
     }
 }

@@ -8,6 +8,8 @@ public class Node : MonoBehaviour
     private Color COLOR_EMPTY = Color.white;
     private Color COLOR_BLOCKED = new Color(35 / 255f, 35 / 255f, 35 / 255f);
     private SpriteRenderer render;
+    private Animator anim;
+    private PathVisualizer pathVisualizer;
 
 
     [Header("Node Variables")]
@@ -22,7 +24,10 @@ public class Node : MonoBehaviour
     private void Awake()
     {
         render = GetComponent<SpriteRenderer>();
+        anim = GetComponent<Animator>();
         position = Vector2Int.RoundToInt(transform.position);
+
+        pathVisualizer = transform.GetChild(0).GetComponent<PathVisualizer>();
     }
 
 
@@ -48,6 +53,9 @@ public class Node : MonoBehaviour
             render.color = COLOR_BLOCKED;
         else
             render.color = COLOR_EMPTY;
+
+        if(this.visible)
+            anim.Play("NodeDrawn");
     }
 
 
@@ -99,21 +107,25 @@ public class Node : MonoBehaviour
         return position;
     }
 
-    public void DebugColor(int a)
+    public void DebugColor(Vector2Int previous, Vector2Int next, bool enoughStamina)
     {
-        if (a == 0)
+        pathVisualizer.SetPath(previous, next, enoughStamina);
+
+        /*if (a == 0)
             render.color = Color.red;
         else if (a == 1)
             render.color = Color.green;
         else
-            render.color = Color.blue;
+            render.color = Color.blue;*/
     }
 
     public void ClearDebugColor()
     {
-        if (blocked)
+        pathVisualizer.ClearPath();
+
+        /*if (blocked)
             render.color = COLOR_BLOCKED;
         else
-            render.color = COLOR_EMPTY;
+            render.color = COLOR_EMPTY;*/
     }
 }
