@@ -83,11 +83,11 @@ public class AStarPath
                         {
                             if (closedNodes[j].node.GetPosition() == neighbourList[i].GetPosition())
                             {
-                                handled = true;
-                                /*if(f >= closedNodes[j].f)
+                                //handled = true;
+                                if(f >= closedNodes[j].f)
                                 {
                                     handled = true; // This makes it very slow in some cases because it repeats same node multiple times.
-                                }*/                 // Is it even necessary?
+                                }                   // Is it even necessary?
                                 break;
                             }
                         }

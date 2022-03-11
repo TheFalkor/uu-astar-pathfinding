@@ -124,7 +124,7 @@ public class GridController
     public void ClearDebug()
     {
         for (int i = 0; i < nodeArray.Length; i++)
-            nodeArray[i].ClearDebugColor();
+            nodeArray[i].ClearPath();
     }
 
 

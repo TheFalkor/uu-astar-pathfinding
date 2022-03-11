@@ -48,6 +48,7 @@ public class Node : MonoBehaviour
             return;
 
         this.blocked = blocked;
+        ClearPath();
 
         if (blocked)
             render.color = COLOR_BLOCKED;
@@ -107,25 +108,13 @@ public class Node : MonoBehaviour
         return position;
     }
 
-    public void DebugColor(Vector2Int previous, Vector2Int next, bool enoughStamina)
+    public void DrawPath(Vector2Int previous, Vector2Int next, bool enoughStamina)
     {
-        pathVisualizer.SetPath(previous, next, enoughStamina);
-
-        /*if (a == 0)
-            render.color = Color.red;
-        else if (a == 1)
-            render.color = Color.green;
-        else
-            render.color = Color.blue;*/
+        pathVisualizer.DrawPath(previous, next, enoughStamina);
     }
 
-    public void ClearDebugColor()
+    public void ClearPath()
     {
         pathVisualizer.ClearPath();
-
-        /*if (blocked)
-            render.color = COLOR_BLOCKED;
-        else
-            render.color = COLOR_EMPTY;*/
     }
 }
