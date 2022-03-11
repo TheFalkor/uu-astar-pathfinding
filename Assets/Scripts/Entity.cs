@@ -7,12 +7,13 @@ public class Entity : MonoBehaviour
     [Header("Entity Variables")]
     private SpriteRenderer render;
     private Vector2Int position;
+    private Vector2Int homePosition;
 
 
     void Start()
     {
         render = GetComponent<SpriteRenderer>();
-        position = Vector2Int.RoundToInt(transform.position);
+        UpdatePosition();
     }
 
 
@@ -21,12 +22,24 @@ public class Entity : MonoBehaviour
         this.position = position;
         gameObject.transform.position = (Vector2)position;
         gameObject.SetActive(true);
+
+        homePosition = position;
     }
 
+    public void UpdatePosition()
+    {
+        position = Vector2Int.RoundToInt(transform.position);
+        transform.position = (Vector2)position;
+    }
 
     public Vector2Int GetPosition()
     {
         return position;
+    }
+
+    public void ResetPosition()
+    {
+        SetPosition(homePosition);
     }
 
 

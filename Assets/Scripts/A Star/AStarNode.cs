@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class AStarNode
 {
+    [Header("AStarNode Variables")]
     public int h = 0;   // Estimated cost from this node to target
     public int g = 0;   // Total cost to get to this node from start
     public int f = 0;   // Sum of H and G

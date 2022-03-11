@@ -16,8 +16,7 @@ public class PathVisualizer : MonoBehaviour
     private Vector2Int position;
 
 
-
-    void Start()
+    void Awake()
     {
         render = GetComponent<SpriteRenderer>();
         position = Vector2Int.RoundToInt(transform.position);

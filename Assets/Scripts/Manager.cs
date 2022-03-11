@@ -14,12 +14,13 @@ public class Manager : MonoBehaviour
     private const KeyCode KEY_FILLNODES = KeyCode.F;
     private const KeyCode KEY_RANDOMENTITY = KeyCode.R;
     private const KeyCode KEY_NOISEPATTERN = KeyCode.Q;
-    private const KeyCode KEY_STARTALGORITHM = KeyCode.Space;
+    private const KeyCode KEY_STARTSIMULATION = KeyCode.Space;
 
 
     [Header("Manager Variables")]
     private bool leftClicking = false;
     private bool rightClicking = false;
+    private bool simulationActive = false;
     private Entity currentEntity;
 
 
@@ -27,8 +28,8 @@ public class Manager : MonoBehaviour
     private Camera cam;
     private Entity spaceship;
     private Entity tradingPost;
-    private Entity fallenStar;
-    private Entity starchaser;
+    private Entity star;
+    private Starchaser starchaser;
 
 
     [Header("Public References")]
@@ -36,7 +37,7 @@ public class Manager : MonoBehaviour
     public GridController grid;
     
 
-    void Start()
+    void Awake()
     {
         if (instance == null)
             instance = this;
@@ -47,20 +48,42 @@ public class Manager : MonoBehaviour
         
         spaceship = GameObject.Find("Spaceship").GetComponent<Entity>();
         tradingPost = GameObject.Find("TradingPost").GetComponent<Entity>();
-        fallenStar = GameObject.Find("FallenStar").GetComponent<Entity>();
-        starchaser = GameObject.Find("Starchaser").GetComponent<Entity>();
+        star = GameObject.Find("FallenStar").GetComponent<Entity>();
+        starchaser = GameObject.Find("Starchaser").GetComponent<Starchaser>();
+
+        starchaser.SetReferences(spaceship, tradingPost, star);
 
         grid = new GridController(nodePrefab, START_SIZE);
 
         grid.RandomizeEntityPosition(spaceship);
         grid.RandomizeEntityPosition(tradingPost);
-        grid.RandomizeEntityPosition(fallenStar);
+        grid.RandomizeEntityPosition(star);
         grid.RandomizeEntityPosition(starchaser);
     }
 
 
     void Update()
     {
+        if(Input.GetKeyUp(KEY_STARTSIMULATION))
+        {
+            simulationActive = !simulationActive;
+            if (simulationActive)
+                starchaser.Resume();
+            else
+            {
+                star.transform.parent = null;
+                star.ResetPosition();
+                starchaser.ResetPosition();
+
+                grid.ClearDebug();
+            }
+        }    
+
+        if(simulationActive)
+        {
+            starchaser.UpdateSimulation(Time.deltaTime);
+            return;
+        }
         leftClicking = !rightClicking && Input.GetMouseButton(0);
         rightClicking = !leftClicking && Input.GetMouseButton(1);
         Vector2Int mousePosition = Vector2Int.RoundToInt(Camera.main.ScreenToWorldPoint(Input.mousePosition));
@@ -115,15 +138,11 @@ public class Manager : MonoBehaviour
         {
             grid.RandomizeEntityPosition(spaceship);
             grid.RandomizeEntityPosition(tradingPost);
-            grid.RandomizeEntityPosition(fallenStar);
+            grid.RandomizeEntityPosition(star);
             grid.RandomizeEntityPosition(starchaser);
             SelectEntity(null);
         }
 
-        if(Input.GetKeyUp(KEY_STARTALGORITHM))   // Just for testing
-        {
-            starchaser.GetComponent<Starchaser>().Test(grid.GetNode(starchaser.GetPosition()), grid.GetNode(fallenStar.GetPosition()));
-        }    
     }
 
 

@@ -6,45 +6,212 @@ public enum StarchaserState
 {
     LOCATE_TARGET,
     GOTO_TARGET,
+    PREPARE,
     TRADE,
     REST,
     STUCK
 }
 
-public class Starchaser : MonoBehaviour
+public class Starchaser : Entity
 {
+    [Header("Settings")]
+    private const int MAX_STAMINA = 10;
+    private const float MOVEMENT_SPEED = 5.0f;
+    private const float REST_TIME = 1.5f;
+    private const float PICKUP_STAR_TIME = 0.5f;
+    private const float TRADE_TIME = 1.0f;
+    private const float DROP_TIME = 0.25f;
+
+
+    [Header("Starchaser Tools")]
     private readonly AStarPath algorithm = new AStarPath();
-    private StarchaserState state;
-    private const int MAX_STAMINA = 15;
-    private int currentStamina;
-    private bool haveStar = false;
-
     private List<Node> path;
+    private StarchaserState state = StarchaserState.PREPARE;
+    private Node target;
 
-    void Start()
+
+    [Header("Object References")]
+    private Entity spaceship;
+    private Entity tradingPost;
+    private Entity star;
+
+
+    [Header("Starchaser Variables")]
+    private int currentStamina = MAX_STAMINA;
+    private bool haveStar = false;
+    private int curPathIndex = 0;
+    private float currentTime = 0;
+    private Vector2 currentTargetPosition;
+    public int money = 0;
+
+
+    public void SetReferences(Entity spaceship, Entity tradingPost, Entity star)
     {
+        this.spaceship = spaceship;
+        this.tradingPost = tradingPost;
+        this.star = star;
+    }
+
+
+    public void Resume()
+    {
+        state = StarchaserState.PREPARE;
         currentStamina = MAX_STAMINA;
+    }
+
+    public void UpdateSimulation(float deltaTime)
+    {
+        switch (state)
+        {
+            case StarchaserState.LOCATE_TARGET:
+                FindTarget(Manager.instance.grid.GetNode(GetPosition()), target);
+
+                if (path.Count == 0)
+                    state = StarchaserState.STUCK;
+                else
+                {
+                    curPathIndex = 1;
+                    currentTargetPosition = path[curPathIndex].GetPosition();
+                    state = StarchaserState.GOTO_TARGET;
+                }
+                break;
+
+            case StarchaserState.GOTO_TARGET:
+                if (haveStar && currentStamina == 0)
+                {
+                    currentTime += deltaTime;
+
+                    if(currentTime >= DROP_TIME)
+                    {
+                        DropStar();
+                        SetTarget(spaceship);
+                    }
+                    break;
+                }
+                
+                if (transform.position == (Vector3)currentTargetPosition)
+                {
+                    if(curPathIndex == path.Count - 1)
+                    {
+                        state = StarchaserState.PREPARE;
+                    }
+                    else
+                    {
+                        if(haveStar)
+                            currentStamina--;
+
+                        if (currentStamina > 0 || !haveStar)
+                        {   
+                            curPathIndex++;
+                            currentTargetPosition = path[curPathIndex].GetPosition();
+                        }
+                    }
+                }
+                else
+                {
+                    transform.position = Vector3.MoveTowards(transform.position, currentTargetPosition, deltaTime * MOVEMENT_SPEED);
+                }
+                break;
+
+            case StarchaserState.PREPARE:
+                if(currentTargetPosition == spaceship.GetPosition() && currentStamina < MAX_STAMINA)
+                {
+                    currentTime = 0;
+                    state = StarchaserState.REST;
+                }
+                else if(currentTargetPosition == tradingPost.GetPosition() && haveStar)
+                {
+                    currentTime = 0;
+                    state = StarchaserState.TRADE;
+                }
+                else if (currentTargetPosition == star.GetPosition())
+                {
+                    currentTime += deltaTime;
+
+                    if(currentTime >= PICKUP_STAR_TIME)
+                    {
+                        currentTime = 0;
+                        PickupStar();
+                        SetTarget(tradingPost);
+                    }
+                }
+                else
+                {
+                    SetTarget(star);
+                }
+                break;
+
+            case StarchaserState.TRADE:
+                currentTime += deltaTime;
+
+                if(currentTime >= TRADE_TIME)
+                {
+                    currentTime = 0;
+                    money++;
+                    Debug.Log("MONEYS: " + money);
+                    DropStar();
+                    Manager.instance.grid.RandomizeEntityPosition(star);
+                    state = StarchaserState.PREPARE;
+                }
+                break;
+
+            case StarchaserState.REST:
+                currentTime += deltaTime;
+
+                if(currentTime >= REST_TIME)
+                {
+                    currentStamina = MAX_STAMINA;
+                    state = StarchaserState.PREPARE;
+                }    
+                break;
+
+            case StarchaserState.STUCK:
+                Debug.Log("STARCHASER CANNOT FIND THE PATH!");
+                break;
+        }
+    }
+
+
+    private void SetTarget(Entity entity)
+    {
+        UpdatePosition();
+        target = Manager.instance.grid.GetNode(entity.GetPosition());
         state = StarchaserState.LOCATE_TARGET;
     }
 
-    
-    void Update()
-    {
-        
-    }
-
-    public void Test(Node start, Node end)
+    private void FindTarget(Node start, Node end)
     {
         path = algorithm.CalculatePath(start, end);
+        
+        StartCoroutine(DrawPath());
+    }
 
+
+    private void PickupStar()
+    {
+        haveStar = true;
+        star.transform.parent = this.transform;
+    }
+
+    private void DropStar()
+    {
+        haveStar = false;
+        star.transform.parent = null;
+        star.UpdatePosition();
+    }
+
+    private IEnumerator DrawPath()
+    {
         int stamina = currentStamina + 1;
+
         for (int i = 0; i < path.Count; i++)
         {
             if (i > 0 && i < path.Count - 1)
             {
                 bool enoughStamina = stamina > 0;
 
-                path[i].DrawPath(path[i - 1].GetPosition(), path[i + 1].GetPosition(), enoughStamina);
+                path[i].DrawPath(path[i - 1].GetPosition(), path[i + 1].GetPosition(), enoughStamina || !haveStar);
+                yield return new WaitForSeconds(0.1f);
             }
             stamina--;
         }

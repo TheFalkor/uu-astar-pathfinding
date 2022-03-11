@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class AStarPath
 {
+    [Header("AStarPath Variables")]
     private List<AStarNode> openNodes = new List<AStarNode>();
     private List<AStarNode> closedNodes = new List<AStarNode>();
     private readonly List<Node> path = new List<Node>();
