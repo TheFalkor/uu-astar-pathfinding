@@ -6,9 +6,9 @@ public class AStarPath
 {
     private List<AStarNode> openNodes = new List<AStarNode>();
     private List<AStarNode> closedNodes = new List<AStarNode>();
-    public readonly List<Node> path = new List<Node>();
+    private readonly List<Node> path = new List<Node>();
 
-    public void CalculatePath(Node startNode, Node targetNode)
+    public List<Node> CalculatePath(Node startNode, Node targetNode)
     {
         openNodes.Clear();
         closedNodes.Clear();
@@ -52,7 +52,7 @@ public class AStarPath
                     if (neighbourList[i].blocked || !neighbourList[i].visible)
                         continue;
 
-                    int g = currentNode.g + 1;
+                    int g = currentNode.g + 10;
 
                     Vector2Int neighbourPosition = neighbourList[i].GetPosition();
                     int h = Mathf.Abs(targetPosition.x - neighbourPosition.x) + Mathf.Abs(targetPosition.y - neighbourPosition.y);
@@ -104,15 +104,8 @@ public class AStarPath
                 closedNodes.Add(currentNode);
         }
 
-        for (int i = 0; i < openNodes.Count; i++)
-            openNodes[i].node.DebugColor(1);
+        path.Reverse();
 
-        for (int i = 0; i < closedNodes.Count; i++)
-            closedNodes[i].node.DebugColor(2);
-
-        for (int i = path.Count - 1; i >= 0; i--)
-        {
-            path[i].DebugColor(0);
-        }
+        return path;
     }
 }
