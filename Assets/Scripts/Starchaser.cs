@@ -22,7 +22,8 @@ public class Starchaser : Entity
 
 
     [Header("Starchaser Tools")]
-    private readonly AStarPath algorithm = new AStarPath();
+    private readonly AStarPath astarAlgorithm = new AStarPath();
+    private readonly JPSPath jpsAlgorithm = new JPSPath();
     private List<Node> path;
     private StarchaserState state = StarchaserState.PREPARE;
     private Node target;
@@ -183,7 +184,7 @@ public class Starchaser : Entity
 
     private void FindTarget(Node start, Node end)
     {
-        path = algorithm.CalculatePath(start, end);
+        path = astarAlgorithm.CalculatePath(start, end);
         
         StartCoroutine(DrawPath());
     }
