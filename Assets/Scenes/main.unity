@@ -736,7 +736,19 @@ MonoBehaviour:
   m_Value: 10
   m_OnValueChanged:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 2076286687}
+        m_TargetAssemblyTypeName: UIController, Assembly-CSharp
+        m_MethodName: StaminaSlider
+        m_Mode: 2
+        m_Arguments:
+          m_ObjectArgument: {fileID: 375356243}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.UI.Slider, UnityEngine.UI
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &383734196
 GameObject:
   m_ObjectHideFlags: 0

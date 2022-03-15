@@ -64,4 +64,10 @@ public class UIController : MonoBehaviour
 
         slider.transform.Find("Value Text").GetComponent<Text>().text = syntax;
     }
+
+    public void StaminaSlider(Slider slider)
+    {
+        Manager.instance.SetStamina((int)slider.value);
+        slider.transform.Find("Value Text").GetComponent<Text>().text = "" + slider.value;
+    }
 }

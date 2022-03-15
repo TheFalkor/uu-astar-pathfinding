@@ -15,7 +15,7 @@ public enum StarchaserState
 public class Starchaser : Entity
 {
     [Header("Settings")]
-    private const int MAX_STAMINA = 10;
+    private int MAX_STAMINA = 10;
     private const float MOVEMENT_SPEED = 5.0f;
     private const float WAIT_TIME = 0.5f;
     private float simulationSpeed = 1.0f;
@@ -35,7 +35,7 @@ public class Starchaser : Entity
 
 
     [Header("Starchaser Variables")]
-    private int currentStamina = MAX_STAMINA;
+    private int currentStamina;
     private bool haveStar = false;
     private int curPathIndex = 0;
     private float currentTime = 0;
@@ -54,6 +54,11 @@ public class Starchaser : Entity
     public void SetSimulationSpeed(float speed)
     {
         simulationSpeed = speed;
+    }
+
+    public void SetStamina(int stamina)
+    {
+        MAX_STAMINA = stamina;
     }
 
 

@@ -181,6 +181,11 @@ public class Manager : MonoBehaviour
         starchaser.SetSimulationSpeed(speed);
     }
 
+    public void SetStamina(int stamina)
+    {
+        starchaser.SetStamina(stamina);
+    }
+
     public void RandomizeEntityPositions()
     {
         grid.RandomizeEntityPosition(spaceship, true);
