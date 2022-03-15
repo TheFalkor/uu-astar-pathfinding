@@ -17,13 +17,14 @@ public class Entity : MonoBehaviour
     }
 
 
-    public void SetPosition(Vector2Int position)
+    public void SetPosition(Vector2Int position, bool saveHome)
     {
         this.position = position;
         gameObject.transform.position = (Vector2)position;
         gameObject.SetActive(true);
 
-        homePosition = position;
+        if(saveHome)
+            homePosition = position;
     }
 
     public void UpdatePosition()
@@ -37,9 +38,9 @@ public class Entity : MonoBehaviour
         return position;
     }
 
-    public void ResetPosition()
+    public Vector2Int GetHomePosition()
     {
-        SetPosition(homePosition);
+        return homePosition;
     }
 
 

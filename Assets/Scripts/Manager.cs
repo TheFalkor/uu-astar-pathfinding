@@ -55,10 +55,10 @@ public class Manager : MonoBehaviour
 
         grid = new GridController(nodePrefab, START_SIZE);
 
-        grid.RandomizeEntityPosition(spaceship);
-        grid.RandomizeEntityPosition(tradingPost);
-        grid.RandomizeEntityPosition(star);
-        grid.RandomizeEntityPosition(starchaser);
+        grid.RandomizeEntityPosition(spaceship, true);
+        grid.RandomizeEntityPosition(tradingPost, true);
+        grid.RandomizeEntityPosition(star, true);
+        grid.RandomizeEntityPosition(starchaser, true);
     }
 
 
@@ -72,8 +72,8 @@ public class Manager : MonoBehaviour
             else
             {
                 star.transform.parent = null;
-                star.ResetPosition();
-                starchaser.ResetPosition();
+                star.SetPosition(star.GetHomePosition(), false);
+                starchaser.SetPosition(starchaser.GetHomePosition(), false);
 
                 grid.ClearDebug();
             }
@@ -136,10 +136,10 @@ public class Manager : MonoBehaviour
 
         if (Input.GetKeyUp(KEY_RANDOMENTITY))
         {
-            grid.RandomizeEntityPosition(spaceship);
-            grid.RandomizeEntityPosition(tradingPost);
-            grid.RandomizeEntityPosition(star);
-            grid.RandomizeEntityPosition(starchaser);
+            grid.RandomizeEntityPosition(spaceship, true);
+            grid.RandomizeEntityPosition(tradingPost, true);
+            grid.RandomizeEntityPosition(star, true);
+            grid.RandomizeEntityPosition(starchaser, true);
             SelectEntity(null);
         }
 

@@ -139,14 +139,14 @@ public class GridController
     }
 
 
-    public void RandomizeEntityPosition(Entity entity)
+    public void RandomizeEntityPosition(Entity entity, bool save)
     {
         List<Node> emptyNodes = new List<Node>();
 
         for (int i = 0; i < visibleNodeList.Count; i++)
         {
             Node node = visibleNodeList[i];
-            if (!node.blocked && !node.GetBlocked())
+            if (!node.GetBlocked())
                 emptyNodes.Add(node);
         }
 
@@ -154,10 +154,12 @@ public class GridController
         {
             int prevIndex = (entity.GetPosition().x + MAX_CAMERA_SIZE) % ROW_COUNT + (MAX_CAMERA_SIZE - entity.GetPosition().y) * ROW_COUNT;
             int newIndex = Random.Range(0, emptyNodes.Count);
-
-            nodeArray[prevIndex].SetEntity(null);
-            entity.SetPosition(Vector2Int.RoundToInt(emptyNodes[newIndex].transform.position));
-            emptyNodes[newIndex].SetEntity(entity);
+            if (save)
+            {
+                nodeArray[prevIndex].SetEntity(null);
+                emptyNodes[newIndex].SetEntity(entity);
+            }
+            entity.SetPosition(Vector2Int.RoundToInt(emptyNodes[newIndex].transform.position), save);
         }
     }
 
@@ -176,7 +178,7 @@ public class GridController
         nodeArray[prevIndex].SetEntity(null);
         nodeArray[newIndex].SetEntity(entity);
 
-        entity.SetPosition(position);
+        entity.SetPosition(position, true);
 
         Manager.instance.SelectEntity(null);
     }

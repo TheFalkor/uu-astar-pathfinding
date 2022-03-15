@@ -150,7 +150,7 @@ public class Starchaser : Entity
                     money++;
                     Debug.Log("MONEYS: " + money);
                     DropStar();
-                    Manager.instance.grid.RandomizeEntityPosition(star);
+                    Manager.instance.grid.RandomizeEntityPosition(star, false);
                     state = StarchaserState.PREPARE;
                 }
                 break;
