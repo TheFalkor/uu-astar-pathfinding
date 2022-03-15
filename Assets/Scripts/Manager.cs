@@ -35,13 +35,14 @@ public class Manager : MonoBehaviour
     [Header("Public References")]
     public static Manager instance;
     public GridController grid;
+    private UIController uiController;
     
 
     void Awake()
     {
         if (instance == null)
             instance = this;
-
+        
 
         cam = Camera.main;
         cam.orthographicSize = START_SIZE;
@@ -54,11 +55,9 @@ public class Manager : MonoBehaviour
         starchaser.SetReferences(spaceship, tradingPost, star);
 
         grid = new GridController(nodePrefab, START_SIZE);
+        uiController = GameObject.Find("Canvas").GetComponent<UIController>();
 
-        grid.RandomizeEntityPosition(spaceship, true);
-        grid.RandomizeEntityPosition(tradingPost, true);
-        grid.RandomizeEntityPosition(star, true);
-        grid.RandomizeEntityPosition(starchaser, true);
+        RandomizeEntityPositions();
     }
 
 
@@ -66,17 +65,7 @@ public class Manager : MonoBehaviour
     {
         if(Input.GetKeyUp(KEY_STARTSIMULATION))
         {
-            simulationActive = !simulationActive;
-            if (simulationActive)
-                starchaser.Resume();
-            else
-            {
-                star.transform.parent = null;
-                star.SetPosition(star.GetHomePosition(), false);
-                starchaser.SetPosition(starchaser.GetHomePosition(), false);
-
-                grid.ClearDebug();
-            }
+            ToggleSimulation();
         }    
 
         if(simulationActive)
@@ -121,28 +110,55 @@ public class Manager : MonoBehaviour
 
         if (Input.GetKeyUp(KEY_RESETNODES))
         {
-            grid.ResetNodes();
+            uiController.GridClear();
         }
 
         if (Input.GetKeyUp(KEY_FILLNODES))
         {
-            grid.FillNodes();
+            uiController.GridFill();
         }
 
         if (Input.GetKeyUp(KEY_NOISEPATTERN))
         {
-            grid.NoisePattern();
+            uiController.GridRandomize();
         }
 
         if (Input.GetKeyUp(KEY_RANDOMENTITY))
         {
-            grid.RandomizeEntityPosition(spaceship, true);
-            grid.RandomizeEntityPosition(tradingPost, true);
-            grid.RandomizeEntityPosition(star, true);
-            grid.RandomizeEntityPosition(starchaser, true);
-            SelectEntity(null);
+            RandomizeEntityPositions();
         }
 
+    }
+
+
+    public void ToggleSimulation()
+    {
+        if (simulationActive)
+        {
+            star.transform.parent = null;
+            star.SetPosition(star.GetHomePosition(), false);
+            starchaser.SetPosition(starchaser.GetHomePosition(), false);
+            starchaser.Pause();
+
+            grid.ClearDebug();
+            simulationActive = false;
+            uiController.ToggleCover();
+        }
+        else
+        {
+            if (!spaceship.gameObject.activeSelf)
+                return;
+            if (!tradingPost.gameObject.activeSelf)
+                return;
+            if (!star.gameObject.activeSelf)
+                return;
+            if (!starchaser.gameObject.activeSelf)
+                return;
+
+            starchaser.Resume();
+            simulationActive = true;
+            uiController.ToggleCover();
+        }
     }
 
 
@@ -161,5 +177,15 @@ public class Manager : MonoBehaviour
 
         if (currentEntity)
             currentEntity.SetSelected(true);
+    }
+
+
+    public void RandomizeEntityPositions()
+    {
+        grid.RandomizeEntityPosition(spaceship, true);
+        grid.RandomizeEntityPosition(tradingPost, true);
+        grid.RandomizeEntityPosition(star, true);
+        grid.RandomizeEntityPosition(starchaser, true);
+        SelectEntity(null);
     }
 }

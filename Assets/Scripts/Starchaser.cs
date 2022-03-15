@@ -17,10 +17,7 @@ public class Starchaser : Entity
     [Header("Settings")]
     private const int MAX_STAMINA = 10;
     private const float MOVEMENT_SPEED = 5.0f;
-    private const float REST_TIME = 1.5f;
-    private const float PICKUP_STAR_TIME = 0.5f;
-    private const float TRADE_TIME = 1.0f;
-    private const float DROP_TIME = 0.25f;
+    private const float WAIT_TIME = 0.5f;
 
 
     [Header("Starchaser Tools")]
@@ -43,6 +40,7 @@ public class Starchaser : Entity
     private float currentTime = 0;
     private Vector2 currentTargetPosition;
     public int money = 0;
+    private bool allowDrawPath = false;
 
 
     public void SetReferences(Entity spaceship, Entity tradingPost, Entity star)
@@ -57,6 +55,13 @@ public class Starchaser : Entity
     {
         state = StarchaserState.PREPARE;
         currentStamina = MAX_STAMINA;
+        money = 0;
+        allowDrawPath = true;
+    }
+
+    public void Pause()
+    {
+        allowDrawPath = false;
     }
 
     public void UpdateSimulation(float deltaTime)
@@ -64,28 +69,30 @@ public class Starchaser : Entity
         switch (state)
         {
             case StarchaserState.LOCATE_TARGET:
-                FindTarget(Manager.instance.grid.GetNode(GetPosition()), target);
+                if(currentTime == 0)
+                    FindTarget(Manager.instance.grid.GetNode(GetPosition()), target);
 
-                if (path.Count == 0)
-                    state = StarchaserState.STUCK;
-                else
-                {
-                    curPathIndex = 1;
-                    currentTargetPosition = path[curPathIndex].GetPosition();
-                    state = StarchaserState.GOTO_TARGET;
+                currentTime += deltaTime;
+                if (currentTime >= WAIT_TIME)
+                {                 
+                    if (path.Count == 0)
+                        state = StarchaserState.STUCK;
+                    else
+                    {
+                        curPathIndex = 1;
+                        currentTargetPosition = path[curPathIndex].GetPosition();
+                        state = StarchaserState.GOTO_TARGET;
+                    }
+
+                    currentTime = 0;
                 }
                 break;
 
             case StarchaserState.GOTO_TARGET:
                 if (haveStar && currentStamina == 0)
                 {
-                    currentTime += deltaTime;
-
-                    if(currentTime >= DROP_TIME)
-                    {
-                        DropStar();
-                        SetTarget(spaceship);
-                    }
+                    DropStar();
+                    SetTarget(spaceship);
                     break;
                 }
                 
@@ -116,25 +123,17 @@ public class Starchaser : Entity
             case StarchaserState.PREPARE:
                 if(currentTargetPosition == spaceship.GetPosition() && currentStamina < MAX_STAMINA)
                 {
-                    currentTime = 0;
                     state = StarchaserState.REST;
                 }
                 else if(currentTargetPosition == tradingPost.GetPosition() && haveStar)
                 {
-                    currentTime = 0;
                     state = StarchaserState.TRADE;
                 }
                 else if (currentTargetPosition == star.GetPosition())
                 {
-                    currentTime += deltaTime;
-
-                    if(currentTime >= PICKUP_STAR_TIME)
-                    {
-                        currentTime = 0;
-                        PickupStar();
-                        SetTarget(tradingPost);
-                    }
-                }
+                    PickupStar();
+                    SetTarget(tradingPost);
+            }
                 else
                 {
                     SetTarget(star);
@@ -142,27 +141,16 @@ public class Starchaser : Entity
                 break;
 
             case StarchaserState.TRADE:
-                currentTime += deltaTime;
-
-                if(currentTime >= TRADE_TIME)
-                {
-                    currentTime = 0;
-                    money++;
-                    Debug.Log("MONEYS: " + money);
-                    DropStar();
-                    Manager.instance.grid.RandomizeEntityPosition(star, false);
-                    state = StarchaserState.PREPARE;
-                }
+                money++;
+                Debug.Log("MONEYS: " + money);
+                DropStar();
+                Manager.instance.grid.RandomizeEntityPosition(star, false);
+                state = StarchaserState.PREPARE;
                 break;
 
             case StarchaserState.REST:
-                currentTime += deltaTime;
-
-                if(currentTime >= REST_TIME)
-                {
-                    currentStamina = MAX_STAMINA;
-                    state = StarchaserState.PREPARE;
-                }    
+                currentStamina = MAX_STAMINA;
+                state = StarchaserState.PREPARE;
                 break;
 
             case StarchaserState.STUCK:
@@ -206,12 +194,15 @@ public class Starchaser : Entity
 
         for (int i = 0; i < path.Count; i++)
         {
+            if (!allowDrawPath)
+                break;
+
             if (i > 0 && i < path.Count - 1)
             {
                 bool enoughStamina = stamina > 0;
 
                 path[i].DrawPath(path[i - 1].GetPosition(), path[i + 1].GetPosition(), enoughStamina || !haveStar);
-                yield return new WaitForSeconds(0.1f);
+                yield return new WaitForSeconds(0.05f);
             }
             stamina--;
         }

@@ -99,7 +99,7 @@ public class GridController
     }
 
 
-    public void ResetNodes()
+    public void ClearNodes()
     {
         for (int i = 0; i < nodeArray.Length; i++)
             nodeArray[i].SetNodeBlocked(false);
@@ -113,7 +113,7 @@ public class GridController
 
     public void NoisePattern()
     {
-        ResetNodes();
+        ClearNodes();
         for (int i = 0; i < nodeArray.Length; i++)
         {
             if (Random.Range(0, 100) < 40)
