@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class UIController : MonoBehaviour
 {
@@ -48,8 +49,9 @@ public class UIController : MonoBehaviour
     }
 
 
-    public void GridSizeSlider(float value)
+    public void GridSizeSlider(Slider slider)
     {
-        print(value);
+        Manager.instance.SetCameraSize((int)slider.value);
+        slider.transform.Find("Value Text").GetComponent<Text>().text = "" + slider.value;
     }
 }

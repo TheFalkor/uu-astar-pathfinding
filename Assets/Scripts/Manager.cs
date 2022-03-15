@@ -97,16 +97,6 @@ public class Manager : MonoBehaviour
             SelectEntity(null);
         }
 
-        if(Input.mouseScrollDelta.y < 0)
-        {
-            if (grid.ChangeGridSize(1))
-                cam.orthographicSize += 1;
-        }
-        else if(Input.mouseScrollDelta.y > 0)
-        {
-            if (grid.ChangeGridSize(-1))
-                cam.orthographicSize -= 1;
-        }
 
         if (Input.GetKeyUp(KEY_RESETNODES))
         {
@@ -179,6 +169,12 @@ public class Manager : MonoBehaviour
             currentEntity.SetSelected(true);
     }
 
+
+    public void SetCameraSize(int size)
+    {
+        if (grid.SetGridSize(size))
+            cam.orthographicSize = size;
+    }
 
     public void RandomizeEntityPositions()
     {

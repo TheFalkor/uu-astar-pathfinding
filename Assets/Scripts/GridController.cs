@@ -68,32 +68,38 @@ public class GridController
     }
 
 
-    public bool ChangeGridSize(int direction)
+    public bool SetGridSize(int targetGridSize)
     {
-        if (currentCameraSize + direction > MAX_CAMERA_SIZE || currentCameraSize + direction < MIN_CAMERA_SIZE)
+        if (targetGridSize > MAX_CAMERA_SIZE || targetGridSize < MIN_CAMERA_SIZE)
             return false;
 
-        if (direction > 0)
-            currentCameraSize += 1;
 
 
-        int sideLength = currentCameraSize * 2 - 1;
-        int columnCount = sideLength * 2;
-
-        int startIndex = (MAX_CAMERA_SIZE - currentCameraSize) * ROW_COUNT + MAX_CAMERA_SIZE - currentCameraSize;
-
-        for (int i = 0; i <= sideLength; i++)    // Top row
-            nodeArray[startIndex + i].ToggleNodeVisible();
-
-        for (int i = 2; i < columnCount; i++)   // Columns
-            nodeArray[startIndex + (i / 2) * ROW_COUNT + (i + 1) % 2 * sideLength].ToggleNodeVisible();
-
-        for (int i = 0; i <= sideLength; i++)    // Bottom row
-            nodeArray[startIndex + sideLength * ROW_COUNT + i].ToggleNodeVisible();
+        while (targetGridSize != currentCameraSize)
+        {
+            if (targetGridSize > currentCameraSize)
+                currentCameraSize += 1;
 
 
-        if (direction < 0)
-            currentCameraSize -= 1;
+            int sideLength = currentCameraSize * 2 - 1;
+            int columnCount = sideLength * 2;
+
+            int startIndex = (MAX_CAMERA_SIZE - currentCameraSize) * ROW_COUNT + MAX_CAMERA_SIZE - currentCameraSize;
+
+            for (int i = 0; i <= sideLength; i++)    // Top row
+                nodeArray[startIndex + i].ToggleNodeVisible();
+
+            for (int i = 2; i < columnCount; i++)   // Columns
+                nodeArray[startIndex + (i / 2) * ROW_COUNT + (i + 1) % 2 * sideLength].ToggleNodeVisible();
+
+            for (int i = 0; i <= sideLength; i++)    // Bottom row
+                nodeArray[startIndex + sideLength * ROW_COUNT + i].ToggleNodeVisible();
+
+
+            if (targetGridSize < currentCameraSize)
+                currentCameraSize -= 1;
+        }
+        
 
         return true;
     }
