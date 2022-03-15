@@ -18,6 +18,7 @@ public class Starchaser : Entity
     private const int MAX_STAMINA = 10;
     private const float MOVEMENT_SPEED = 5.0f;
     private const float WAIT_TIME = 0.5f;
+    private float simulationSpeed = 1.0f;
 
 
     [Header("Starchaser Tools")]
@@ -50,13 +51,21 @@ public class Starchaser : Entity
         this.star = star;
     }
 
+    public void SetSimulationSpeed(float speed)
+    {
+        simulationSpeed = speed;
+    }
+
 
     public void Resume()
     {
-        state = StarchaserState.PREPARE;
         currentStamina = MAX_STAMINA;
         money = 0;
         allowDrawPath = true;
+        haveStar = false;
+        currentTime = 0;
+
+        SetTarget(star);
     }
 
     public void Pause()
@@ -72,7 +81,7 @@ public class Starchaser : Entity
                 if(currentTime == 0)
                     FindTarget(Manager.instance.grid.GetNode(GetPosition()), target);
 
-                currentTime += deltaTime;
+                currentTime += deltaTime * simulationSpeed;
                 if (currentTime >= WAIT_TIME)
                 {                 
                     if (path.Count == 0)
@@ -116,7 +125,7 @@ public class Starchaser : Entity
                 }
                 else
                 {
-                    transform.position = Vector3.MoveTowards(transform.position, currentTargetPosition, deltaTime * MOVEMENT_SPEED);
+                    transform.position = Vector3.MoveTowards(transform.position, currentTargetPosition, deltaTime * simulationSpeed * MOVEMENT_SPEED);
                 }
                 break;
 
@@ -202,7 +211,7 @@ public class Starchaser : Entity
                 bool enoughStamina = stamina > 0;
 
                 path[i].DrawPath(path[i - 1].GetPosition(), path[i + 1].GetPosition(), enoughStamina || !haveStar);
-                yield return new WaitForSeconds(0.05f);
+                yield return new WaitForSeconds(0.05f / simulationSpeed);
             }
             stamina--;
         }

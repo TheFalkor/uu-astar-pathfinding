@@ -176,6 +176,11 @@ public class Manager : MonoBehaviour
             cam.orthographicSize = size;
     }
 
+    public void SetSimulationSpeed(float speed)
+    {
+        starchaser.SetSimulationSpeed(speed);
+    }
+
     public void RandomizeEntityPositions()
     {
         grid.RandomizeEntityPosition(spaceship, true);
