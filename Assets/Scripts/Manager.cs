@@ -40,7 +40,7 @@ public class Manager : MonoBehaviour
 
     void Awake()
     {
-        if (instance == null)
+        if (!instance)
             instance = this;
         
 
@@ -121,7 +121,7 @@ public class Manager : MonoBehaviour
     }
 
 
-    public void ToggleSimulation()
+    public bool ToggleSimulation()
     {
         if (simulationActive)
         {
@@ -137,18 +137,20 @@ public class Manager : MonoBehaviour
         else
         {
             if (!spaceship.gameObject.activeSelf)
-                return;
+                return false;
             if (!tradingPost.gameObject.activeSelf)
-                return;
+                return false;
             if (!star.gameObject.activeSelf)
-                return;
+                return false;
             if (!starchaser.gameObject.activeSelf)
-                return;
+                return false;
 
             starchaser.Resume();
             simulationActive = true;
             uiController.ToggleCover();
         }
+
+        return simulationActive;
     }
 
 
@@ -194,4 +196,19 @@ public class Manager : MonoBehaviour
         grid.RandomizeEntityPosition(starchaser, true);
         SelectEntity(null);
     }
+
+    public void SetAlgorithm(Algorithm algorithm)
+    {
+        starchaser.SetAlgorithm(algorithm);
+    }
+
+    public void UpdateStarUI(int starsSold)
+    {
+        uiController.UpdateStarCount(starsSold);
+    }
+
+    public void UpdateStaminaUI(int stamina)
+    {
+        uiController.UpdateStaminaCount(stamina);
+    }    
 }

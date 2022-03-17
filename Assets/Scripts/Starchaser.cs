@@ -12,6 +12,12 @@ public enum StarchaserState
     STUCK
 }
 
+public enum Algorithm
+{
+    ASTAR,
+    JPS
+}
+
 public class Starchaser : Entity
 {
     [Header("Settings")]
@@ -27,6 +33,7 @@ public class Starchaser : Entity
     private List<Node> path;
     private StarchaserState state = StarchaserState.PREPARE;
     private Node target;
+    private Algorithm currentAlgorithm = Algorithm.ASTAR;
 
 
     [Header("Object References")]
@@ -41,7 +48,7 @@ public class Starchaser : Entity
     private int curPathIndex = 0;
     private float currentTime = 0;
     private Vector2 currentTargetPosition;
-    public int money = 0;
+    private int starsSold = 0;
     private bool allowDrawPath = false;
 
 
@@ -62,15 +69,22 @@ public class Starchaser : Entity
         MAX_STAMINA = stamina;
     }
 
+    public void SetAlgorithm(Algorithm algorithm)
+    {
+        currentAlgorithm = algorithm;
+    }
+
 
     public void Resume()
     {
         currentStamina = MAX_STAMINA;
-        money = 0;
+        starsSold = 0;
         allowDrawPath = true;
         haveStar = false;
         currentTime = 0;
 
+        Manager.instance.UpdateStarUI(starsSold);
+        Manager.instance.UpdateStaminaUI(currentStamina);
         SetTarget(star);
     }
 
@@ -120,8 +134,11 @@ public class Starchaser : Entity
                     else
                     {
                         if(haveStar)
+                        {
                             currentStamina--;
-
+                            Manager.instance.UpdateStaminaUI(currentStamina);
+                        }
+                            
                         if (currentStamina > 0 || !haveStar)
                         {   
                             curPathIndex++;
@@ -156,8 +173,9 @@ public class Starchaser : Entity
                 break;
 
             case StarchaserState.TRADE:
-                money++;
-                Debug.Log("MONEYS: " + money);
+                starsSold++;
+                Manager.instance.UpdateStarUI(starsSold);
+
                 DropStar();
                 Manager.instance.grid.RandomizeEntityPosition(star, false);
                 state = StarchaserState.PREPARE;
@@ -165,6 +183,7 @@ public class Starchaser : Entity
 
             case StarchaserState.REST:
                 currentStamina = MAX_STAMINA;
+                Manager.instance.UpdateStaminaUI(currentStamina);
                 state = StarchaserState.PREPARE;
                 break;
 

@@ -5,6 +5,17 @@ using UnityEngine.UI;
 
 public class UIController : MonoBehaviour
 {
+    [Header("Inspector References")]
+    [SerializeField] private Sprite runSimulationSprite;
+    [SerializeField] private Sprite endSimulationSprite;
+    [Space]
+    [SerializeField] private Image simulationButton;
+    [SerializeField] private Text starsSoldText;
+    [SerializeField] private Text staminaText;
+    [Space]
+    [SerializeField] private Button astarButton;
+    [SerializeField] private Button jpsButton;
+
     [Header("UI Variables")]
     private bool covering = false;
 
@@ -15,8 +26,18 @@ public class UIController : MonoBehaviour
 
     void Start()
     {
-        blockInputCover = transform.GetChild(0).Find("Input Cover").gameObject;
+        blockInputCover = transform.GetChild(1).Find("Input Cover").gameObject;
         blockInputCover.SetActive(covering);
+    }
+
+    public void UpdateStarCount(int count)
+    {
+        starsSoldText.text = "" + count;
+    }
+
+    public void UpdateStaminaCount(int count)
+    {
+        staminaText.text = "" + count;
     }
 
 
@@ -69,5 +90,31 @@ public class UIController : MonoBehaviour
     {
         Manager.instance.SetStamina((int)slider.value);
         slider.transform.Find("Value Text").GetComponent<Text>().text = "" + slider.value;
+    }
+
+    public void SetAlgorithm(int indexAlgorithm)
+    {
+        if(indexAlgorithm == 0)
+        {
+            jpsButton.interactable = true;
+            astarButton.interactable = false;
+            Manager.instance.SetAlgorithm(Algorithm.ASTAR);
+        }
+        else
+        {
+            jpsButton.interactable = false;
+            astarButton.interactable = true;
+            Manager.instance.SetAlgorithm(Algorithm.JPS);
+        }
+    }
+
+    public void ToggleSimulation()
+    {
+        bool active = Manager.instance.ToggleSimulation();
+
+        if (active)
+            simulationButton.sprite = endSimulationSprite;
+        else
+            simulationButton.sprite = runSimulationSprite;
     }
 }
