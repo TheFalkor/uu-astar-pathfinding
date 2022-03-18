@@ -9,7 +9,8 @@ public class Node : MonoBehaviour
     private Color COLOR_BLOCKED = new Color(35 / 255f, 35 / 255f, 35 / 255f);
     private SpriteRenderer render;
     private Animator anim;
-    private PathVisualizer pathVisualizer;
+    private PathVisualizer pathVisualizerIn;
+    private PathVisualizer pathVisualizerOut;
 
 
     [Header("Node Variables")]
@@ -27,7 +28,8 @@ public class Node : MonoBehaviour
         anim = GetComponent<Animator>();
         position = Vector2Int.RoundToInt(transform.position);
 
-        pathVisualizer = transform.GetChild(0).GetComponent<PathVisualizer>();
+        pathVisualizerIn = transform.GetChild(0).GetComponent<PathVisualizer>();
+        pathVisualizerOut = transform.GetChild(1).GetComponent<PathVisualizer>();
     }
 
 
@@ -110,11 +112,13 @@ public class Node : MonoBehaviour
 
     public void DrawPath(Vector2Int previous, Vector2Int next, bool enoughStamina)
     {
-        pathVisualizer.DrawPath(previous, next, enoughStamina);
+        pathVisualizerIn.DrawPathNew(previous, enoughStamina);
+        pathVisualizerOut.DrawPathNew(next, enoughStamina);
     }
 
     public void ClearPath()
     {
-        pathVisualizer.ClearPath();
+        pathVisualizerIn.ClearPath();
+        pathVisualizerOut.ClearPath();
     }
 }
