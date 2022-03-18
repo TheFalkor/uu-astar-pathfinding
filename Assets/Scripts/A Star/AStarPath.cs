@@ -53,9 +53,13 @@ public class AStarPath
                     if (neighbourList[i].blocked || !neighbourList[i].visible)
                         continue;
 
-                    int g = currentNode.g + 10;
-
+                    Vector2Int currentPos = currentNode.node.GetPosition();
                     Vector2Int neighbourPosition = neighbourList[i].GetPosition();
+
+                    int scuffed = Mathf.Abs(currentPos.x - neighbourPosition.x) + Mathf.Abs(currentPos.y - neighbourPosition.y);
+                    int g = currentNode.g;
+                    g += scuffed == 1 ? 10 : 14;
+
                     int h = Mathf.Abs(targetPosition.x - neighbourPosition.x) + Mathf.Abs(targetPosition.y - neighbourPosition.y);
                     h *= 10;
 

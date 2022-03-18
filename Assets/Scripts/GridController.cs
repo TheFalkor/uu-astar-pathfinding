@@ -46,14 +46,34 @@ public class GridController
         {
             Node node = nodeArray[i];
 
-            if (i % ROW_COUNT != 0)
-                node.AddNeighbour(nodeArray[i - 1]);
-            if (i % ROW_COUNT != ROW_COUNT - 1)
-                node.AddNeighbour(nodeArray[i + 1]);
             if (i / ROW_COUNT != 0)
-                node.AddNeighbour(nodeArray[i - ROW_COUNT]);
+            {
+                if (i % ROW_COUNT != 0)
+                    node.AddNeighbour(nodeArray[i - ROW_COUNT - 1]);    // NW
+
+                node.AddNeighbour(nodeArray[i - ROW_COUNT]);            // N
+
+                if (i % ROW_COUNT != ROW_COUNT - 1)
+                    node.AddNeighbour(nodeArray[i - ROW_COUNT + 1]);    // NE
+            }
+
+            if (i % ROW_COUNT != ROW_COUNT - 1)
+                node.AddNeighbour(nodeArray[i + 1]);                    // E
+
             if (i / ROW_COUNT != ROW_COUNT - 1)
-                node.AddNeighbour(nodeArray[i + ROW_COUNT]);
+            {
+                if (i % ROW_COUNT != ROW_COUNT - 1)
+                    node.AddNeighbour(nodeArray[i + ROW_COUNT + 1]);    // SE
+
+                node.AddNeighbour(nodeArray[i + ROW_COUNT]);            //S
+
+                if (i % ROW_COUNT != 0)
+                    node.AddNeighbour(nodeArray[i + ROW_COUNT - 1]);    // SW
+            }
+
+            if (i % ROW_COUNT != 0)
+                node.AddNeighbour(nodeArray[i - 1]);                    // W
+
         }
     }
 
