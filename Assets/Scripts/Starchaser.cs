@@ -188,7 +188,7 @@ public class Starchaser : Entity
                 break;
 
             case StarchaserState.STUCK:
-                Debug.Log("STARCHASER CANNOT FIND THE PATH!");
+                //Debug.Log("STARCHASER CANNOT FIND THE PATH!");
                 break;
         }
     }
@@ -203,7 +203,7 @@ public class Starchaser : Entity
 
     private void FindTarget(Node start, Node end)
     {
-        path = astarAlgorithm.CalculatePath(start, end);
+        path = jpsAlgorithm.CalculatePath(start, end);
         
         StartCoroutine(DrawPath());
     }
