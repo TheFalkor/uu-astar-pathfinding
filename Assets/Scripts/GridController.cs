@@ -221,6 +221,9 @@ public class GridController
 
     public Node GetNode(Vector2Int position)
     {
+        if (position.x < -currentCameraSize || position.x >= currentCameraSize || position.y <= -currentCameraSize || position.y > currentCameraSize)
+            return null;
+
         int index = (position.x + MAX_CAMERA_SIZE) % ROW_COUNT + (MAX_CAMERA_SIZE - position.y) * ROW_COUNT;
         return nodeArray[index];
     }

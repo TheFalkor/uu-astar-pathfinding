@@ -226,6 +226,9 @@ public class Starchaser : Entity
     {
         int stamina = currentStamina + 1;
 
+        if (!haveStar)
+            stamina = MAX_STAMINA;
+
         for (int i = 0; i < path.Count; i++)
         {
             if (!allowDrawPath)
@@ -233,12 +236,12 @@ public class Starchaser : Entity
 
             if (i > 0 && i < path.Count - 1)
             {
-                bool enoughStamina = stamina > 0;
-
-                path[i].DrawPath(path[i - 1].GetPosition(), path[i + 1].GetPosition(), enoughStamina || !haveStar);
+                path[i].DrawPath(path[i - 1].GetPosition(), path[i + 1].GetPosition(), stamina);
                 yield return new WaitForSeconds(0.05f / simulationSpeed);
             }
-            stamina--;
+
+            if (haveStar)
+                stamina--;
         }
     }
 }

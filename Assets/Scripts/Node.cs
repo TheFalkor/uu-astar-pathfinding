@@ -104,16 +104,21 @@ public class Node : MonoBehaviour
         return occupied || blocked;
     }
 
+    public bool IsWalkable()
+    {
+        return !blocked && visible;
+    }
+
 
     public Vector2Int GetPosition()
     {
         return position;
     }
 
-    public void DrawPath(Vector2Int previous, Vector2Int next, bool enoughStamina)
+    public void DrawPath(Vector2Int previous, Vector2Int next, int stamina)
     {
-        pathVisualizerIn.DrawPathNew(previous, enoughStamina);
-        pathVisualizerOut.DrawPathNew(next, enoughStamina);
+        pathVisualizerIn.DrawPath(previous, stamina > 0);
+        pathVisualizerOut.DrawPath(next, stamina > 1);
     }
 
     public void ClearPath()

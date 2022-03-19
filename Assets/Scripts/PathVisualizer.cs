@@ -18,7 +18,7 @@ public class PathVisualizer : MonoBehaviour
         gameObject.SetActive(false);
     }
 
-    public void DrawPathNew(Vector2Int direction, bool enoughStamina)
+    public void DrawPath(Vector2Int direction, bool enoughStamina)
     {
         if (enoughStamina)
             render.color = COLOR_CANREACH;
