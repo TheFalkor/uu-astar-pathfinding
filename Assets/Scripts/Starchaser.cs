@@ -99,7 +99,7 @@ public class Starchaser : Entity
         {
             case StarchaserState.LOCATE_TARGET:
                 if(currentTime == 0)
-                    FindTarget(Manager.instance.grid.GetNode(GetPosition()), target);
+                    FindTarget(Manager.instance.grid.GetNodeReal(GetPosition()), target);
 
                 currentTime += deltaTime * simulationSpeed;
                 if (currentTime >= WAIT_TIME)
@@ -109,7 +109,7 @@ public class Starchaser : Entity
                     else
                     {
                         curPathIndex = 1;
-                        currentTargetPosition = path[curPathIndex].GetPosition();
+                        currentTargetPosition = path[curPathIndex].GetRealPosition();
                         state = StarchaserState.GOTO_TARGET;
                     }
 
@@ -142,7 +142,7 @@ public class Starchaser : Entity
                         if (currentStamina > 0 || !haveStar)
                         {   
                             curPathIndex++;
-                            currentTargetPosition = path[curPathIndex].GetPosition();
+                            currentTargetPosition = path[curPathIndex].GetRealPosition();
                         }
                     }
                 }
@@ -197,7 +197,7 @@ public class Starchaser : Entity
     private void SetTarget(Entity entity)
     {
         UpdatePosition();
-        target = Manager.instance.grid.GetNode(entity.GetPosition());
+        target = Manager.instance.grid.GetNodeReal(entity.GetPosition());
         state = StarchaserState.LOCATE_TARGET;
     }
 
@@ -236,7 +236,7 @@ public class Starchaser : Entity
 
             if (i > 0 && i < path.Count - 1)
             {
-                path[i].DrawPath(path[i - 1].GetPosition(), path[i + 1].GetPosition(), stamina);
+                path[i].DrawPath(path[i - 1].GetRealPosition(), path[i + 1].GetRealPosition(), stamina);
                 yield return new WaitForSeconds(0.05f / simulationSpeed);
             }
 

@@ -16,6 +16,7 @@ public class Node : MonoBehaviour
     [Header("Node Variables")]
     private readonly List<Node> neighbourList = new List<Node>();
     private Vector2Int position;
+    private Vector2Int realPosition;
     private Entity occupyingEntity;
     private bool occupied = false;
     public bool blocked = false;
@@ -26,7 +27,7 @@ public class Node : MonoBehaviour
     {
         render = GetComponent<SpriteRenderer>();
         anim = GetComponent<Animator>();
-        position = Vector2Int.RoundToInt(transform.position);
+        realPosition = Vector2Int.RoundToInt(transform.position);
 
         pathVisualizerIn = transform.GetChild(0).GetComponent<PathVisualizer>();
         pathVisualizerOut = transform.GetChild(1).GetComponent<PathVisualizer>();
@@ -110,9 +111,19 @@ public class Node : MonoBehaviour
     }
 
 
+    public Vector2Int GetRealPosition()
+    {
+        return realPosition;
+    }
+
     public Vector2Int GetPosition()
     {
         return position;
+    }
+
+    public void SetPosition(Vector2Int pos)
+    {
+        position = pos;
     }
 
     public void DrawPath(Vector2Int previous, Vector2Int next, int stamina)

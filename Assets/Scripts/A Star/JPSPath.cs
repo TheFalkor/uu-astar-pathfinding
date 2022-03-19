@@ -35,7 +35,7 @@ public class JPSPath
             AStarNode currentNode = openNodes[nodeIndex];
 
             openNodes.Remove(currentNode);
-
+            Debug.Log("WHILE LOOP SELECTED: " + currentNode.node.GetPosition());
             if (currentNode.node == targetNode)
             {
                 path.Add(targetNode);
@@ -150,7 +150,7 @@ public class JPSPath
         nextPosition.x += dX;
         nextPosition.y += dY;
 
-        Node nextNode = Manager.instance.grid.GetNode(nextPosition);
+        Node nextNode = Manager.instance.grid.GetNodeGrid(nextPosition);
         
         if (nextNode == null || !nextNode.IsWalkable())
             return null;
@@ -227,36 +227,36 @@ public class JPSPath
             // Diagonal
             if (dx != 0 && dy != 0)
             {
-                neighbour = Manager.instance.grid.GetNode(new Vector2Int(currentPos.x + dx, currentPos.y + dy));
+                neighbour = Manager.instance.grid.GetNodeGrid(new Vector2Int(currentPos.x + dx, currentPos.y + dy));
                 if (neighbour != null && neighbour.IsWalkable())
                     neighbourList.Add(neighbour);
 
-                neighbour = Manager.instance.grid.GetNode(new Vector2Int(currentPos.x, currentPos.y + dy));
+                neighbour = Manager.instance.grid.GetNodeGrid(new Vector2Int(currentPos.x, currentPos.y + dy));
                 if (neighbour != null && neighbour.IsWalkable())
                     neighbourList.Add(neighbour);
 
-                neighbour = Manager.instance.grid.GetNode(new Vector2Int(currentPos.x + dx, currentPos.y));
+                neighbour = Manager.instance.grid.GetNodeGrid(new Vector2Int(currentPos.x + dx, currentPos.y));
                 if (neighbour != null && neighbour.IsWalkable())
                     neighbourList.Add(neighbour);
             }
             // Horizontal / Vertical
             else
             {
-                neighbour = Manager.instance.grid.GetNode(new Vector2Int(currentPos.x + dx, currentPos.y + dy));
+                neighbour = Manager.instance.grid.GetNodeGrid(new Vector2Int(currentPos.x + dx, currentPos.y + dy));
                 if (neighbour != null && neighbour.IsWalkable())
                 {
                     Debug.Log("ADDED A NEIGHBOUR1 :: " + neighbour.GetPosition());
                     neighbourList.Add(neighbour);
                 }
 
-                neighbour = Manager.instance.grid.GetNode(new Vector2Int(currentPos.x + dx + dy, currentPos.y + dy + dx));
+                neighbour = Manager.instance.grid.GetNodeGrid(new Vector2Int(currentPos.x + dx + dy, currentPos.y + dy + dx));
                 if (neighbour != null && neighbour.IsWalkable())
                 {
                     Debug.Log("ADDED A NEIGHBOUR2 :: " + neighbour.GetPosition());
                     neighbourList.Add(neighbour);
                 }
 
-                neighbour = Manager.instance.grid.GetNode(new Vector2Int(currentPos.x + dx - dy, currentPos.y + dy - dx));
+                neighbour = Manager.instance.grid.GetNodeGrid(new Vector2Int(currentPos.x + dx - dy, currentPos.y + dy - dx));
                 if (neighbour != null && neighbour.IsWalkable())
                 {
                     Debug.Log("ADDED A NEIGHBOUR3 :: " + neighbour.GetPosition());
@@ -280,16 +280,16 @@ public class JPSPath
 
     private bool HasForcedNeighbour(Node current, Vector2Int direction, Vector2Int offset)
     {
-        Node offsetNode = Manager.instance.grid.GetNode(current.GetPosition() + offset);
+        Node offsetNode = Manager.instance.grid.GetNodeGrid(current.GetPosition() + offset);
         if (offsetNode != null && !offsetNode.IsWalkable())
         {
             Vector2Int nextPos = current.GetPosition() + direction;
-            Node next = Manager.instance.grid.GetNode(nextPos);
+            Node next = Manager.instance.grid.GetNodeGrid(nextPos);
 
             if (next != null && next.IsWalkable())
             {
                 Vector2Int neighbourPos = current.GetPosition() + direction + offset;
-                Node neighbour = Manager.instance.grid.GetNode(neighbourPos);
+                Node neighbour = Manager.instance.grid.GetNodeGrid(neighbourPos);
 
                 if (neighbour != null && neighbour.IsWalkable())
                     return true;

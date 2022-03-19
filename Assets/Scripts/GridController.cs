@@ -26,6 +26,7 @@ public class GridController
         for (int i = 0; i < nodeArray.Length; i++)
         {
             Node node = Object.Instantiate(nodePrefab, new Vector2(-MAX_CAMERA_SIZE + i % ROW_COUNT, MAX_CAMERA_SIZE - i / ROW_COUNT), Quaternion.identity, nodeParent).GetComponent<Node>();
+            node.SetPosition(new Vector2Int(i % ROW_COUNT, i / ROW_COUNT));
             if (i > minVisibleIndex && i < maxVisibleIndex)
             {
                 if (i % ROW_COUNT >= MAX_CAMERA_SIZE - startSize && i % ROW_COUNT < ROW_COUNT - MAX_CAMERA_SIZE + startSize)
@@ -195,7 +196,7 @@ public class GridController
         int prevIndex = (entity.GetPosition().x + MAX_CAMERA_SIZE) % ROW_COUNT + (MAX_CAMERA_SIZE - entity.GetPosition().y) * ROW_COUNT;
         int newIndex = (position.x + MAX_CAMERA_SIZE) % ROW_COUNT + (MAX_CAMERA_SIZE - position.y) * ROW_COUNT;
 
-        if (nodeArray[newIndex].GetBlocked())
+        if (nodeArray[newIndex].GetBlocked() || !nodeArray[newIndex].visible)
         {
             Manager.instance.SelectEntity(nodeArray[newIndex].GetEntity());
             return;
@@ -219,10 +220,19 @@ public class GridController
         return nodeArray[index].GetEntity();
     }
 
-    public Node GetNode(Vector2Int position)
+    public Node GetNodeGrid(Vector2Int position)
+    {
+        if (position.x < 0 || position.x >= ROW_COUNT || position.y < 0 || position.y >= ROW_COUNT)
+            return null;
+
+        int index = position.x % ROW_COUNT + position.y * ROW_COUNT;
+        return nodeArray[index];
+    }
+
+    public Node GetNodeReal(Vector2Int position)
     {
         if (position.x < -currentCameraSize || position.x >= currentCameraSize || position.y <= -currentCameraSize || position.y > currentCameraSize)
-            return null;
+        return null;
 
         int index = (position.x + MAX_CAMERA_SIZE) % ROW_COUNT + (MAX_CAMERA_SIZE - position.y) * ROW_COUNT;
         return nodeArray[index];
