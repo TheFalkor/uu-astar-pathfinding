@@ -237,4 +237,14 @@ public class GridController
         int index = (position.x + MAX_CAMERA_SIZE) % ROW_COUNT + (MAX_CAMERA_SIZE - position.y) * ROW_COUNT;
         return nodeArray[index];
     }
+
+
+    public bool WalkableAt(int x, int y)
+    {
+        if (x < 0 || x >= ROW_COUNT || y < 0 || y >= ROW_COUNT)
+            return false;
+
+        int index = x % ROW_COUNT + y * ROW_COUNT;
+        return nodeArray[index].IsWalkable();
+    }
 }

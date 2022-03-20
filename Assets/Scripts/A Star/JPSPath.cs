@@ -9,6 +9,9 @@ public class JPSPath
     private List<AStarNode> closedNodes = new List<AStarNode>();
     private readonly List<Node> path = new List<Node>();
 
+    private bool remember = false;
+    private Node temp;
+
     public List<Node> CalculatePath(Node startNode, Node targetNode)
     {
         openNodes.Clear();
@@ -59,7 +62,7 @@ public class JPSPath
                 }
                 break;
             }
-            Debug.Log(openNodes.Count);
+            //Debug.Log(openNodes.Count);
             closedNodes.Add(currentNode);
         }
         
@@ -72,7 +75,7 @@ public class JPSPath
     private bool IdentifySuccessor(AStarNode current, Node targetNode)
     {
         List<Node> neighbourList = GetNeighbour(current);
-        Debug.Log("NEIG: " + neighbourList.Count);
+        //Debug.Log("NEIG: " + neighbourList.Count);
         for (int i = 0; i < neighbourList.Count; i++)
         {
             Vector2Int currentPos = current.node.GetPosition();
@@ -80,6 +83,47 @@ public class JPSPath
 
             int dx = Mathf.Clamp(nextPos.x - currentPos.x, -1, 1);
             int dy = Mathf.Clamp(nextPos.y - currentPos.y, -1, 1);
+
+            // TESTING NEW SHIT
+            if (dx != dy)                    // Horizontal & Vertical
+            {
+                //Debug.Log("meow" + current.node.GetPosition());
+                if (dx != 0)
+                {
+                    //Debug.Log("meow-hori");
+                    if (HasForcedNeighbour(current.node, new Vector2Int(dx, dy), new Vector2Int(0, 1)))
+                    {
+                        Debug.Log("ONE");
+                        AddNewNode(temp, current, targetNode);
+                        remember = false;
+                    }
+                    if (HasForcedNeighbour(current.node, new Vector2Int(dx, dy), new Vector2Int(0, -1)))
+                    {
+                        Debug.Log("TWO");
+                        Debug.Log(current.node);
+                        AddNewNode(temp, current, targetNode);
+                        remember = false;
+                    }
+                }
+                else
+                {
+                    //Debug.Log("meow-vert");
+                    if (HasForcedNeighbour(current.node, new Vector2Int(dx, dy), new Vector2Int(1, 0)))
+                    {
+                        Debug.Log("THREE");
+                        AddNewNode(temp, current, targetNode);
+                        remember = false;
+                    }
+                    if (HasForcedNeighbour(current.node, new Vector2Int(dx, dy), new Vector2Int(-1, 0)))
+                    {
+                        Debug.Log("FOUR");
+                        AddNewNode(temp, current, targetNode);
+                        remember = false;
+                    }
+                }
+            }
+
+            // !TESTING NEW SHIT
 
 
             Node t = Jump(current.node, dx, dy, targetNode);
@@ -90,55 +134,15 @@ public class JPSPath
                 {
                     return true;
                 }
-                Debug.Log("test? " + t.GetPosition());
+                //Debug.Log("test? " + t.GetPosition());
+                AStarNode aNode = AddNewNode(t, current, targetNode);
 
-                int g = CalculateG(currentPos, t.GetPosition(), current.g);
-                int h = Mathf.Abs(targetNode.GetPosition().x - t.GetPosition().x) + Mathf.Abs(targetNode.GetPosition().y - t.GetPosition().y);
-                h *= 10;
-
-                int f = g + h;
-
-                bool handled = false;
-                for (int j = 0; j < openNodes.Count; j++)
+                if(remember)
                 {
-                    if (openNodes[j].node.GetPosition() == t.GetPosition())
-                    {
-                        if (f < openNodes[j].f)
-                        {
-                            openNodes[j].f = f;
-                            openNodes[j].g = g;
-                            openNodes[j].h = h;
-                            openNodes[j].parentNode = current;
-                        }
-                        handled = true;
-                        break;
-                    }
-                }
-
-                if (!handled)
-                {
-                    for (int j = 0; j < closedNodes.Count; j++)
-                    {
-                        if (closedNodes[j].node.GetPosition() == t.GetPosition())
-                        {
-                            //handled = true;
-                            if (f >= closedNodes[j].f)
-                            {
-                                handled = true; // This makes it very slow in some cases because it repeats same node multiple times.
-                            }                   // Is it even necessary?
-                            break;
-                        }
-                    }
-                }
-
-                if (!handled)
-                {
-                    Debug.Log("ADDED NEW NODE");
-                    t.DrawPath(new Vector2Int(0, 0), new Vector2Int(1, 1), 10);
-                    openNodes.Add(new AStarNode(t, current, h, g, f));
+                    //AddNewNode(temp, aNode, targetNode);
+                    remember = false;
                 }
             }
-            // add to open? idk
         }
 
         return false;
@@ -155,7 +159,7 @@ public class JPSPath
         if (nextNode == null || !nextNode.IsWalkable())
             return null;
 
-        Debug.Log("STAR: " + targetNode.GetPosition() + " :: CURRENT: " + nextNode.GetPosition() + " :: dir: " + dX + ", " + dY);
+        //Debug.Log("STAR: " + targetNode.GetPosition() + " :: CURRENT: " + nextNode.GetPosition() + " :: dir: " + dX + ", " + dY);
         if (nextNode == targetNode)
         {
             Debug.Log("FOUND HOME");
@@ -167,9 +171,11 @@ public class JPSPath
         {
             // diagnoadlas check
 
-
-            Debug.Log("diag");
-            if (Jump(nextNode, dX, 0, targetNode) != null || Jump(nextNode, 0, dY, targetNode) != null)
+            if (Jump(nextNode, dX, 0, targetNode) == null && Jump(nextNode, 0, dY, targetNode) == null)
+            {
+                return null;
+            }
+            else if (Jump(nextNode, dX, 0, targetNode) != null || Jump(nextNode, 0, dY, targetNode) != null)
             {
                 Debug.Log("something");
                 return nextNode;
@@ -177,10 +183,10 @@ public class JPSPath
         }
         else                    // Horizontal & Vertical
         {
-            Debug.Log("straight" + nextNode.GetPosition());
+            //Debug.Log("straight" + nextNode.GetPosition());
             if (dX != 0)
             {
-                Debug.Log("hori");
+                //Debug.Log("hori");
                 if (HasForcedNeighbour(nextNode, new Vector2Int(dX, dY), new Vector2Int(0, 1)))
                 {
                     return nextNode;
@@ -192,15 +198,15 @@ public class JPSPath
             }
             else
             {
-                Debug.Log("vert");
+                //Debug.Log("vert");
                 if (HasForcedNeighbour(nextNode, new Vector2Int(dX, dY), new Vector2Int(1, 0)))
                 {
-                    Debug.Log("right");
+                    //Debug.Log("right");
                     return nextNode;
                 }
                 if (HasForcedNeighbour(nextNode, new Vector2Int(dX, dY), new Vector2Int(-1, 0)))
                 {
-                    Debug.Log("left");
+                    //Debug.Log("left");
                     return nextNode;
                 }
             }
@@ -222,7 +228,7 @@ public class JPSPath
             int dx = Mathf.Clamp(parentPos.x - currentPos.x, -1, 1) * -1;
             int dy = Mathf.Clamp(parentPos.y - currentPos.y, -1, 1) * -1;
             Node neighbour;
-            Debug.Log("CHECKNEI: " + dx + ", " + dy);
+            //Debug.Log("CHECKNEI: " + dx + ", " + dy);
 
             // Diagonal
             if (dx != 0 && dy != 0)
@@ -245,21 +251,21 @@ public class JPSPath
                 neighbour = Manager.instance.grid.GetNodeGrid(new Vector2Int(currentPos.x + dx, currentPos.y + dy));
                 if (neighbour != null && neighbour.IsWalkable())
                 {
-                    Debug.Log("ADDED A NEIGHBOUR1 :: " + neighbour.GetPosition());
+                    //Debug.Log("ADDED A NEIGHBOUR1 :: " + neighbour.GetPosition());
                     neighbourList.Add(neighbour);
                 }
 
                 neighbour = Manager.instance.grid.GetNodeGrid(new Vector2Int(currentPos.x + dx + dy, currentPos.y + dy + dx));
                 if (neighbour != null && neighbour.IsWalkable())
                 {
-                    Debug.Log("ADDED A NEIGHBOUR2 :: " + neighbour.GetPosition());
+                    //Debug.Log("ADDED A NEIGHBOUR2 :: " + neighbour.GetPosition());
                     neighbourList.Add(neighbour);
                 }
 
                 neighbour = Manager.instance.grid.GetNodeGrid(new Vector2Int(currentPos.x + dx - dy, currentPos.y + dy - dx));
                 if (neighbour != null && neighbour.IsWalkable())
                 {
-                    Debug.Log("ADDED A NEIGHBOUR3 :: " + neighbour.GetPosition());
+                    //Debug.Log("ADDED A NEIGHBOUR3 :: " + neighbour.GetPosition());
                     neighbourList.Add(neighbour);
                 }
             }
@@ -292,7 +298,11 @@ public class JPSPath
                 Node neighbour = Manager.instance.grid.GetNodeGrid(neighbourPos);
 
                 if (neighbour != null && neighbour.IsWalkable())
+                {
+                    remember = true;
+                    temp = neighbour;
                     return true;
+                }
                // return neighbour;
             }
         }
@@ -323,6 +333,64 @@ public class JPSPath
         }
 
         return g;
+    }
+
+    private AStarNode AddNewNode(Node node, AStarNode parent, Node targetNode)
+    {
+        AStarNode nodeFound = null;
+        int g = CalculateG(parent.node.GetPosition(), node.GetPosition(), parent.g);
+        int h = Mathf.Abs(targetNode.GetPosition().x - node.GetPosition().x) + Mathf.Abs(targetNode.GetPosition().y - node.GetPosition().y);
+        h *= 10;
+
+        int f = g + h;
+
+        bool handled = false;
+        for (int j = 0; j < openNodes.Count; j++)
+        {
+            if (openNodes[j].node.GetPosition() == node.GetPosition())
+            {
+                if (f < openNodes[j].f)
+                {
+                    openNodes[j].f = f;
+                    openNodes[j].g = g;
+                    openNodes[j].h = h;
+                    openNodes[j].parentNode = parent;
+                }
+                nodeFound = openNodes[j];
+                handled = true;
+                break;
+            }
+        }
+
+        if (!handled)
+        {
+            for (int j = 0; j < closedNodes.Count; j++)
+            {
+                if (closedNodes[j].node.GetPosition() == node.GetPosition())
+                {
+                    //handled = true;
+                    if (f >= closedNodes[j].f)
+                    {
+                        nodeFound = closedNodes[j];
+                        handled = true; // This makes it very slow in some cases because it repeats same node multiple times.
+                    }                   // Is it even necessary?
+                    break;
+                }
+            }
+        }
+
+        if (!handled)
+        {
+            Debug.Log("ADDED NEW NODE " + node.GetRealPosition() + " :: " + parent.node.GetRealPosition());
+            node.DrawPath(new Vector2Int(0, 0), new Vector2Int(1, 1), 10);
+
+
+            AStarNode aNode = new AStarNode(node, parent, h, g, f);
+            openNodes.Add(aNode);
+            return aNode;
+        }
+        else
+            return nodeFound;
     }
 
 }

@@ -29,7 +29,7 @@ public class Starchaser : Entity
 
     [Header("Starchaser Tools")]
     private readonly AStarPath astarAlgorithm = new AStarPath();
-    private readonly JPSPath jpsAlgorithm = new JPSPath();
+    private readonly JPSPathRewritten jpsAlgorithm = new JPSPathRewritten();
     private List<Node> path;
     private StarchaserState state = StarchaserState.PREPARE;
     private Node target;
@@ -45,6 +45,7 @@ public class Starchaser : Entity
     [Header("Starchaser Variables")]
     private int currentStamina;
     private bool haveStar = false;
+    private bool wantStar = false;
     private int curPathIndex = 0;
     private float currentTime = 0;
     private Vector2 currentTargetPosition;
@@ -129,6 +130,12 @@ public class Starchaser : Entity
                 {
                     if(curPathIndex == path.Count - 1)
                     {
+                        if (haveStar)
+                        {
+                            currentStamina--;
+                            Manager.instance.UpdateStaminaUI(currentStamina);
+                        }
+
                         state = StarchaserState.PREPARE;
                     }
                     else
@@ -161,13 +168,14 @@ public class Starchaser : Entity
                 {
                     state = StarchaserState.TRADE;
                 }
-                else if (currentTargetPosition == star.GetPosition())
+                else if (currentTargetPosition == star.GetPosition() && wantStar)
                 {
                     PickupStar();
                     SetTarget(tradingPost);
             }
                 else
                 {
+                    wantStar = true;
                     SetTarget(star);
                 }
                 break;
@@ -203,8 +211,11 @@ public class Starchaser : Entity
 
     private void FindTarget(Node start, Node end)
     {
-        path = jpsAlgorithm.CalculatePath(start, end);
-        
+        if (currentAlgorithm == Algorithm.ASTAR)
+            path = astarAlgorithm.CalculatePath(start, end);
+        else
+            path = jpsAlgorithm.CalculatePath(start, end);
+
         StartCoroutine(DrawPath());
     }
 
@@ -217,6 +228,7 @@ public class Starchaser : Entity
 
     private void DropStar()
     {
+        wantStar = false;
         haveStar = false;
         star.transform.parent = null;
         star.UpdatePosition();
