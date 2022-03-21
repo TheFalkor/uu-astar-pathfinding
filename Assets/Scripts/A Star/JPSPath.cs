@@ -222,5 +222,4 @@ public class JPSPath
     {
         return (Mathf.Abs(target.x - current.x) + Mathf.Abs(target.y - current.y)) * 10;
     }
-
 }

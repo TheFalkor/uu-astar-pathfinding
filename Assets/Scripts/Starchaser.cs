@@ -106,8 +106,12 @@ public class Starchaser : Entity
                 currentTime += deltaTime * simulationSpeed;
                 if (currentTime >= WAIT_TIME)
                 {                 
-                    if (path.Count == 0)
+                    if (path == null)
                         state = StarchaserState.STUCK;
+                    else if (path.Count == 1)
+                    {
+                        state = StarchaserState.PREPARE;
+                    }
                     else
                     {
                         curPathIndex = 1;
@@ -202,7 +206,7 @@ public class Starchaser : Entity
                 break;
 
             case StarchaserState.STUCK:
-                //Debug.Log("STARCHASER CANNOT FIND THE PATH!");
+                Debug.Log("STARCHASER CANNOT FIND THE PATH!");
                 break;
         }
     }
@@ -222,7 +226,8 @@ public class Starchaser : Entity
         else
             path = jpsAlgorithm.CalculatePath(start, end);
 
-        StartCoroutine(DrawPath());
+        if (path != null)
+            StartCoroutine(DrawPath());
     }
 
 

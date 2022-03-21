@@ -9,16 +9,19 @@ public class AStarPath
     private List<AStarNode> closedList = new List<AStarNode>();
     private readonly List<Cell> path = new List<Cell>();
 
+    private Cell target;
+
 
     public List<Cell> CalculatePath(Cell start, Cell target)
     {
+        this.target = target;
+
         openList.Clear();
         closedList.Clear();
         path.Clear();
 
         Manager.instance.grid.ClearDebug();
 
-        Vector2Int targetPosition = target.GetPosition();
 
         openList.Add(new AStarNode(start));
 
@@ -35,82 +38,101 @@ public class AStarPath
             AStarNode currentNode = openList[nodeIndex];
 
             openList.Remove(currentNode);
-            List<Cell> neighborList = currentNode.cell.GetNeighbors();
+            closedList.Add(currentNode);
 
-            for (int i = 0; i < neighborList.Count; i++)
+
+            if(currentNode.cell == target)
             {
-                if (neighborList[i] == target)
+                while (currentNode != null)
                 {
-                    path.Add(neighborList[i]);
-                    while (currentNode != null)
-                    {
-                        path.Add(currentNode.cell);
-                        currentNode = currentNode.parentNode;
-                    }
-
-                    path.Reverse();
-                    return path;
+                    path.Add(currentNode.cell);
+                    currentNode = currentNode.parentNode;
                 }
-                else
+
+                path.Reverse();
+                return path;
+            }
+
+            InvestigateNeighbors(currentNode);          
+        }
+
+        return null;
+    }
+
+    private void InvestigateNeighbors(AStarNode node)
+    {
+        List<Cell> neighborList = node.cell.GetNeighbors();
+
+        for (int i = 0; i < neighborList.Count; i++)
+        {
+            if (neighborList[i] == target)
+            {
+                openList.Add(new AStarNode(neighborList[i], node));
+                return;
+            }
+
+
+            if (neighborList[i].blocked || !neighborList[i].visible)
+                continue;
+
+            Vector2Int currentPos = node.cell.GetPosition();
+            Vector2Int neighborPosition = neighborList[i].GetPosition();
+
+            int g = CalculateG(neighborPosition, currentPos, node.g);
+            int h = CalculateH(neighborPosition, target.GetPosition());
+            int f = g + h;
+
+            bool handled = false;
+            for (int j = 0; j < openList.Count; j++)
+            {
+                if (openList[j].cell == neighborList[i])
                 {
-                    if (neighborList[i].blocked || !neighborList[i].visible)
-                        continue;
-
-                    Vector2Int currentPos = currentNode.cell.GetPosition();
-                    Vector2Int neighborPosition = neighborList[i].GetPosition();
-
-                    int scuffed = Mathf.Abs(currentPos.x - neighborPosition.x) + Mathf.Abs(currentPos.y - neighborPosition.y);
-                    int g = currentNode.g;
-                    g += scuffed == 1 ? 10 : 14;
-
-                    int h = Mathf.Abs(targetPosition.x - neighborPosition.x) + Mathf.Abs(targetPosition.y - neighborPosition.y);
-                    h *= 10;
-
-                    int f = g + h;
-
-                    bool handled = false;
-                    for (int j = 0; j < openList.Count; j++)
+                    if (f < openList[j].f)
                     {
-                        if (openList[j].cell.GetPosition() == neighborList[i].GetPosition())
-                        {
-                            if (f < openList[j].f)
-                            {
-                                openList[j].f = f;
-                                openList[j].g = g;
-                                openList[j].h = h;
-                                openList[j].parentNode = currentNode;
-                            }
-                            handled = true;
-                            break;
-                        }
+                        openList[j].f = f;
+                        openList[j].g = g;
+                        openList[j].h = h;
+                        openList[j].parentNode = node;
                     }
-
-                    if (!handled)
-                    {
-                        for (int j = 0; j < closedList.Count; j++)
-                        {
-                            if (closedList[j].cell.GetPosition() == neighborList[i].GetPosition())
-                            {
-                                if(f >= closedList[j].f)
-                                {
-                                    handled = true;
-                                }
-                                break;
-                            }
-                        }
-                    }
-
-                    if (!handled)
-                    {
-                        openList.Add(new AStarNode(neighborList[i], currentNode, h, g, f));
-                    }
+                    handled = true;
+                    break;
                 }
             }
 
-            closedList.Add(currentNode);
+            if (!handled)
+            {
+                for (int j = 0; j < closedList.Count; j++)
+                    if (closedList[j].cell.GetPosition() == neighborList[i].GetPosition())
+                    {
+                        if (f >= closedList[j].f)
+                            handled = true;
+                        break;
+                    }
+            }
+
+            
+            if (!handled)
+                openList.Add(new AStarNode(neighborList[i], node, h, g, f));      
         }
+    }
 
 
-        return path;
+    private int CalculateG(Vector2Int current, Vector2Int goal, int g)
+    {
+        if (current == goal)
+            return g;
+
+        int dx = Mathf.Clamp(goal.x - current.x, -1, 1);
+        int dy = Mathf.Clamp(goal.y - current.y, -1, 1);
+
+        current.x += dx;
+        current.y += dy;
+
+        return CalculateG(current, goal, g + dx != 0 && dy != 0 ? 14 : 10);
+    }
+
+    private int CalculateH(Vector2Int current, Vector2Int target)
+    {
+        return (Mathf.Abs(target.x - current.x) + Mathf.Abs(target.y - current.y)) * 10;
     }
 }
