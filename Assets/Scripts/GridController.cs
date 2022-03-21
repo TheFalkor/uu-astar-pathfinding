@@ -12,80 +12,80 @@ public class GridController
     [Header("Grid Variables")]
     private const int ROW_COUNT = MAX_CAMERA_SIZE * 2;
     private int currentCameraSize;
-    private readonly Node[] nodeArray = new Node[ROW_COUNT * ROW_COUNT];
-    private readonly List<Node> visibleNodeList = new List<Node>();
+    private readonly Cell[] cellArray = new Cell[ROW_COUNT * ROW_COUNT];
+    private readonly List<Cell> visibleCellList = new List<Cell>();
 
 
-    public GridController(GameObject nodePrefab, int startSize)
+    public GridController(GameObject cellPrefab, int startSize)
     {
         currentCameraSize = startSize;
-        Transform nodeParent = new GameObject("Nodes").transform;
+        Transform cellParent = new GameObject("Cells").transform;
 
         int minVisibleIndex = (MAX_CAMERA_SIZE - startSize) * ROW_COUNT;
-        int maxVisibleIndex = nodeArray.Length - minVisibleIndex - 1;
-        for (int i = 0; i < nodeArray.Length; i++)
+        int maxVisibleIndex = cellArray.Length - minVisibleIndex - 1;
+        for (int i = 0; i < cellArray.Length; i++)
         {
-            Node node = Object.Instantiate(nodePrefab, new Vector2(-MAX_CAMERA_SIZE + i % ROW_COUNT, MAX_CAMERA_SIZE - i / ROW_COUNT), Quaternion.identity, nodeParent).GetComponent<Node>();
-            node.SetPosition(new Vector2Int(i % ROW_COUNT, i / ROW_COUNT));
+            Cell cell = Object.Instantiate(cellPrefab, new Vector2(-MAX_CAMERA_SIZE + i % ROW_COUNT, MAX_CAMERA_SIZE - i / ROW_COUNT), Quaternion.identity, cellParent).GetComponent<Cell>();
+            cell.SetPosition(new Vector2Int(i % ROW_COUNT, i / ROW_COUNT));
             if (i > minVisibleIndex && i < maxVisibleIndex)
             {
                 if (i % ROW_COUNT >= MAX_CAMERA_SIZE - startSize && i % ROW_COUNT < ROW_COUNT - MAX_CAMERA_SIZE + startSize)
                 {
-                    node.SetNodeVisible(true);
-                    visibleNodeList.Add(node);
+                    cell.SetCellVisible(true);
+                    visibleCellList.Add(cell);
                 }
                 else
-                    node.SetNodeVisible(false);
+                    cell.SetCellVisible(false);
             }
             else
-                node.SetNodeVisible(false);
+                cell.SetCellVisible(false);
 
-            nodeArray[i] = node;
+            cellArray[i] = cell;
         }
 
-        for (int i = 0; i < nodeArray.Length; i++)
+        for (int i = 0; i < cellArray.Length; i++)
         {
-            Node node = nodeArray[i];
+            Cell cell = cellArray[i];
 
             if (i / ROW_COUNT != 0)
             {
                 if (i % ROW_COUNT != 0)
-                    node.AddNeighbour(nodeArray[i - ROW_COUNT - 1]);    // NW
+                    cell.AddNeighbour(cellArray[i - ROW_COUNT - 1]);    // NW
 
-                node.AddNeighbour(nodeArray[i - ROW_COUNT]);            // N
+                cell.AddNeighbour(cellArray[i - ROW_COUNT]);            // N
 
                 if (i % ROW_COUNT != ROW_COUNT - 1)
-                    node.AddNeighbour(nodeArray[i - ROW_COUNT + 1]);    // NE
+                    cell.AddNeighbour(cellArray[i - ROW_COUNT + 1]);    // NE
             }
 
             if (i % ROW_COUNT != ROW_COUNT - 1)
-                node.AddNeighbour(nodeArray[i + 1]);                    // E
+                cell.AddNeighbour(cellArray[i + 1]);                    // E
 
             if (i / ROW_COUNT != ROW_COUNT - 1)
             {
                 if (i % ROW_COUNT != ROW_COUNT - 1)
-                    node.AddNeighbour(nodeArray[i + ROW_COUNT + 1]);    // SE
+                    cell.AddNeighbour(cellArray[i + ROW_COUNT + 1]);    // SE
 
-                node.AddNeighbour(nodeArray[i + ROW_COUNT]);            //S
+                cell.AddNeighbour(cellArray[i + ROW_COUNT]);            //S
 
                 if (i % ROW_COUNT != 0)
-                    node.AddNeighbour(nodeArray[i + ROW_COUNT - 1]);    // SW
+                    cell.AddNeighbour(cellArray[i + ROW_COUNT - 1]);    // SW
             }
 
             if (i % ROW_COUNT != 0)
-                node.AddNeighbour(nodeArray[i - 1]);                    // W
+                cell.AddNeighbour(cellArray[i - 1]);                    // W
 
         }
     }
 
 
-    public void SetNodeBlocked(Vector2Int position, bool blocked)
+    public void SetCellBlocked(Vector2Int position, bool blocked)
     {
         if (position.x < -currentCameraSize || position.x >= currentCameraSize || position.y <= -currentCameraSize || position.y > currentCameraSize)
             return;
 
         int index = (position.x + MAX_CAMERA_SIZE) % ROW_COUNT + (MAX_CAMERA_SIZE - position.y) * ROW_COUNT;
-        nodeArray[index].SetNodeBlocked(blocked);
+        cellArray[index].SetCellBlocked(blocked);
     }
 
 
@@ -108,13 +108,13 @@ public class GridController
             int startIndex = (MAX_CAMERA_SIZE - currentCameraSize) * ROW_COUNT + MAX_CAMERA_SIZE - currentCameraSize;
 
             for (int i = 0; i <= sideLength; i++)    // Top row
-                nodeArray[startIndex + i].ToggleNodeVisible();
+                cellArray[startIndex + i].ToggleCellVisible();
 
             for (int i = 2; i < columnCount; i++)   // Columns
-                nodeArray[startIndex + (i / 2) * ROW_COUNT + (i + 1) % 2 * sideLength].ToggleNodeVisible();
+                cellArray[startIndex + (i / 2) * ROW_COUNT + (i + 1) % 2 * sideLength].ToggleCellVisible();
 
             for (int i = 0; i <= sideLength; i++)    // Bottom row
-                nodeArray[startIndex + sideLength * ROW_COUNT + i].ToggleNodeVisible();
+                cellArray[startIndex + sideLength * ROW_COUNT + i].ToggleCellVisible();
 
 
             if (targetGridSize < currentCameraSize)
@@ -126,67 +126,67 @@ public class GridController
     }
 
 
-    public void ClearNodes()
+    public void ClearCells()
     {
-        for (int i = 0; i < nodeArray.Length; i++)
-            nodeArray[i].SetNodeBlocked(false);
+        for (int i = 0; i < cellArray.Length; i++)
+            cellArray[i].SetCellBlocked(false);
     }
 
-    public void FillNodes()
+    public void FillCells()
     {
-        for (int i = 0; i < nodeArray.Length; i++)
-            nodeArray[i].SetNodeBlocked(true);
+        for (int i = 0; i < cellArray.Length; i++)
+            cellArray[i].SetCellBlocked(true);
     }
 
     public void NoisePattern()
     {
-        ClearNodes();
-        for (int i = 0; i < nodeArray.Length; i++)
+        ClearCells();
+        for (int i = 0; i < cellArray.Length; i++)
         {
             if (Random.Range(0, 100) < 40)
-                nodeArray[i].SetNodeBlocked(true);
+                cellArray[i].SetCellBlocked(true);
         }
     }
 
     public void ClearDebug()
     {
-        for (int i = 0; i < nodeArray.Length; i++)
-            nodeArray[i].ClearPath();
+        for (int i = 0; i < cellArray.Length; i++)
+            cellArray[i].ClearPath();
     }
 
 
-    public void AddVisibleNode(Node node)
+    public void AddVisibleCell(Cell cell)
     {
-        visibleNodeList.Add(node);
+        visibleCellList.Add(cell);
     }
 
-    public void RemoveVisibleNode(Node node)
+    public void RemoveVisibleCell(Cell cell)
     {
-        visibleNodeList.Remove(node);
+        visibleCellList.Remove(cell);
     }
 
 
     public void RandomizeEntityPosition(Entity entity, bool save)
     {
-        List<Node> emptyNodes = new List<Node>();
+        List<Cell> emptyCells = new List<Cell>();
 
-        for (int i = 0; i < visibleNodeList.Count; i++)
+        for (int i = 0; i < visibleCellList.Count; i++)
         {
-            Node node = visibleNodeList[i];
-            if (!node.GetBlocked())
-                emptyNodes.Add(node);
+            Cell cell = visibleCellList[i];
+            if (!cell.GetBlocked())
+                emptyCells.Add(cell);
         }
 
-        if (emptyNodes.Count > 0)
+        if (emptyCells.Count > 0)
         {
             int prevIndex = (entity.GetPosition().x + MAX_CAMERA_SIZE) % ROW_COUNT + (MAX_CAMERA_SIZE - entity.GetPosition().y) * ROW_COUNT;
-            int newIndex = Random.Range(0, emptyNodes.Count);
+            int newIndex = Random.Range(0, emptyCells.Count);
             if (save)
             {
-                nodeArray[prevIndex].SetEntity(null);
-                emptyNodes[newIndex].SetEntity(entity);
+                cellArray[prevIndex].SetEntity(null);
+                emptyCells[newIndex].SetEntity(entity);
             }
-            entity.SetPosition(Vector2Int.RoundToInt(emptyNodes[newIndex].transform.position), save);
+            entity.SetPosition(Vector2Int.RoundToInt(emptyCells[newIndex].transform.position), save);
         }
     }
 
@@ -196,14 +196,14 @@ public class GridController
         int prevIndex = (entity.GetPosition().x + MAX_CAMERA_SIZE) % ROW_COUNT + (MAX_CAMERA_SIZE - entity.GetPosition().y) * ROW_COUNT;
         int newIndex = (position.x + MAX_CAMERA_SIZE) % ROW_COUNT + (MAX_CAMERA_SIZE - position.y) * ROW_COUNT;
 
-        if (nodeArray[newIndex].GetBlocked() || !nodeArray[newIndex].visible)
+        if (cellArray[newIndex].GetBlocked() || !cellArray[newIndex].visible)
         {
-            Manager.instance.SelectEntity(nodeArray[newIndex].GetEntity());
+            Manager.instance.SelectEntity(cellArray[newIndex].GetEntity());
             return;
         }
 
-        nodeArray[prevIndex].SetEntity(null);
-        nodeArray[newIndex].SetEntity(entity);
+        cellArray[prevIndex].SetEntity(null);
+        cellArray[newIndex].SetEntity(entity);
 
         entity.SetPosition(position, true);
 
@@ -217,25 +217,25 @@ public class GridController
             return null;
 
         int index = (position.x + MAX_CAMERA_SIZE) % ROW_COUNT + (MAX_CAMERA_SIZE - position.y) * ROW_COUNT;
-        return nodeArray[index].GetEntity();
+        return cellArray[index].GetEntity();
     }
 
-    public Node GetNodeGrid(Vector2Int position)
+    public Cell GetCellUsingGrid(Vector2Int position)
     {
         if (position.x < 0 || position.x >= ROW_COUNT || position.y < 0 || position.y >= ROW_COUNT)
             return null;
 
         int index = position.x % ROW_COUNT + position.y * ROW_COUNT;
-        return nodeArray[index];
+        return cellArray[index];
     }
 
-    public Node GetNodeReal(Vector2Int position)
+    public Cell GetCellUsingReal(Vector2Int position)
     {
         if (position.x < -currentCameraSize || position.x >= currentCameraSize || position.y <= -currentCameraSize || position.y > currentCameraSize)
         return null;
 
         int index = (position.x + MAX_CAMERA_SIZE) % ROW_COUNT + (MAX_CAMERA_SIZE - position.y) * ROW_COUNT;
-        return nodeArray[index];
+        return cellArray[index];
     }
 
 
@@ -245,6 +245,6 @@ public class GridController
             return false;
 
         int index = x % ROW_COUNT + y * ROW_COUNT;
-        return nodeArray[index].IsWalkable();
+        return cellArray[index].IsWalkable();
     }
 }

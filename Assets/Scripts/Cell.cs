@@ -2,9 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Node : MonoBehaviour
+public class Cell : MonoBehaviour
 {
-    [Header("Node Tools")]
+    [Header("Cell Tools")]
     private Color COLOR_EMPTY = Color.white;
     private Color COLOR_BLOCKED = new Color(35 / 255f, 35 / 255f, 35 / 255f);
     private SpriteRenderer render;
@@ -13,8 +13,8 @@ public class Node : MonoBehaviour
     private PathVisualizer pathVisualizerOut;
 
 
-    [Header("Node Variables")]
-    private readonly List<Node> neighbourList = new List<Node>();
+    [Header("Cell Variables")]
+    private readonly List<Cell> neighbourList = new List<Cell>();
     private Vector2Int position;
     private Vector2Int realPosition;
     private Entity occupyingEntity;
@@ -34,18 +34,18 @@ public class Node : MonoBehaviour
     }
 
 
-    public void AddNeighbour(Node node)
+    public void AddNeighbour(Cell cell)
     {
-        neighbourList.Add(node);
+        neighbourList.Add(cell);
     }
 
-    public List<Node> GetNeighbours()
+    public List<Cell> GetNeighbours()
     {
         return neighbourList;
     }
 
 
-    public void SetNodeBlocked(bool blocked)
+    public void SetCellBlocked(bool blocked)
     {
         if (this.blocked == blocked || this.occupied == true)
             return;
@@ -59,11 +59,11 @@ public class Node : MonoBehaviour
             render.color = COLOR_EMPTY;
 
         if(this.visible)
-            anim.Play("NodeDrawn");
+            anim.Play("CellDrawn");
     }
 
 
-    public void SetNodeVisible(bool visible)
+    public void SetCellVisible(bool visible)
     {
         this.visible = visible;
         gameObject.SetActive(visible);
@@ -73,15 +73,15 @@ public class Node : MonoBehaviour
     }
 
 
-    public void ToggleNodeVisible()
+    public void ToggleCellVisible()
     {
         visible = !visible;
         gameObject.SetActive(visible);
         
         if (visible)
-            Manager.instance.grid.AddVisibleNode(this);
+            Manager.instance.grid.AddVisibleCell(this);
         else
-            Manager.instance.grid.RemoveVisibleNode(this);
+            Manager.instance.grid.RemoveVisibleCell(this);
 
         if(occupied)
             occupyingEntity.gameObject.SetActive(visible);

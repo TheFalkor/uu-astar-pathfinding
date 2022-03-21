@@ -5,15 +5,15 @@ using UnityEngine;
 public class AStarNode
 {
     [Header("AStarNode Variables")]
-    public int h = 0;   // Estimated cost from this node to target
-    public int g = 0;   // Total cost to get to this node from start
+    public int h = 0;   // Estimated cost from this cell to target
+    public int g = 0;   // Total cost to get to this cell from start
     public int f = 0;   // Sum of H and G
-    public Node node;
+    public Cell cell;
     public AStarNode parentNode;
 
-    public AStarNode(Node node, AStarNode parent = null, int h = 0, int g = 0, int f = 0)
+    public AStarNode(Cell cell, AStarNode parent = null, int h = 0, int g = 0, int f = 0)
     {
-        this.node = node;
+        this.cell = cell;
         parentNode = parent;
 
         this.h = h;

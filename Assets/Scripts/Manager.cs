@@ -5,13 +5,13 @@ using UnityEngine;
 public class Manager : MonoBehaviour
 {
     [Header("Inspector References")]
-    [SerializeField] private GameObject nodePrefab;
+    [SerializeField] private GameObject cellPrefab;
 
 
     [Header("Settings")]
     private const int START_SIZE = 5;
-    private const KeyCode KEY_RESETNODES = KeyCode.C;
-    private const KeyCode KEY_FILLNODES = KeyCode.F;
+    private const KeyCode KEY_RESETCELLS = KeyCode.C;
+    private const KeyCode KEY_FILLCELLS = KeyCode.F;
     private const KeyCode KEY_RANDOMENTITY = KeyCode.R;
     private const KeyCode KEY_NOISEPATTERN = KeyCode.Q;
     private const KeyCode KEY_STARTSIMULATION = KeyCode.Space;
@@ -54,7 +54,7 @@ public class Manager : MonoBehaviour
 
         starchaser.SetReferences(spaceship, tradingPost, star);
 
-        grid = new GridController(nodePrefab, START_SIZE);
+        grid = new GridController(cellPrefab, START_SIZE);
         uiController = GameObject.Find("Canvas").GetComponent<UIController>();
 
         RandomizeEntityPositions();
@@ -79,11 +79,11 @@ public class Manager : MonoBehaviour
 
         if(leftClicking && !currentEntity)
         {
-            grid.SetNodeBlocked(mousePosition, true);
+            grid.SetCellBlocked(mousePosition, true);
         }
         else if(rightClicking && !currentEntity)
         {
-            grid.SetNodeBlocked(mousePosition, false);
+            grid.SetCellBlocked(mousePosition, false);
         }
         else if(Input.GetMouseButtonUp(0))
         {
@@ -98,12 +98,12 @@ public class Manager : MonoBehaviour
         }
 
 
-        if (Input.GetKeyUp(KEY_RESETNODES))
+        if (Input.GetKeyUp(KEY_RESETCELLS))
         {
             uiController.GridClear();
         }
 
-        if (Input.GetKeyUp(KEY_FILLNODES))
+        if (Input.GetKeyUp(KEY_FILLCELLS))
         {
             uiController.GridFill();
         }

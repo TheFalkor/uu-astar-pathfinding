@@ -7,11 +7,11 @@ public class JPSPathRewritten
     [Header("AStarPath Variables")]
     private List<AStarNode> openNodes = new List<AStarNode>();
     private List<AStarNode> closedNodes = new List<AStarNode>();
-    private readonly List<Node> path = new List<Node>();
+    private readonly List<Cell> path = new List<Cell>();
 
-    private Node theTarget;
+    private Cell theTarget;
 
-    public List<Node> CalculatePath(Node startNode, Node targetNode)
+    public List<Cell> CalculatePath(Cell startNode, Cell targetNode)
     {
         openNodes.Clear();
         closedNodes.Clear();
@@ -41,12 +41,12 @@ public class JPSPathRewritten
             openNodes.Remove(currentNode);
             closedNodes.Add(currentNode);
 
-            if (currentNode.node == targetNode)
+            if (currentNode.cell == targetNode)
             {
-                path.Add(targetNode);
+                //path.Add(targetNode);
                 while (currentNode != null)
                 {
-                    path.Add(currentNode.node);
+                    path.Add(currentNode.cell);
                     currentNode = currentNode.parentNode;
                 }
                 path.Reverse();
@@ -69,7 +69,7 @@ public class JPSPathRewritten
         {
             AStarNode neighbour = neighbourList[i];
 
-            Node jumpPoint = Jump(neighbour.node.GetPosition().x, neighbour.node.GetPosition().y, node.node.GetPosition().x, node.node.GetPosition().y); 
+            Cell jumpPoint = Jump(neighbour.cell.GetPosition().x, neighbour.cell.GetPosition().y, node.cell.GetPosition().x, node.cell.GetPosition().y); 
         
             if(jumpPoint)
             {
@@ -78,17 +78,17 @@ public class JPSPathRewritten
 
                 for (int j = 0; j < closedNodes.Count; j++)
                 {
-                    if (closedNodes[j].node == jumpPoint)
+                    if (closedNodes[j].cell == jumpPoint)
                         continue;
                 }
 
-                int g = CalculateG(node.node.GetPosition(), jumpPoint.GetPosition(), node.g);
+                int g = CalculateG(node.cell.GetPosition(), jumpPoint.GetPosition(), node.g);
                 int h = (Mathf.Abs(theTarget.GetPosition().x - jx) + Mathf.Abs(theTarget.GetPosition().y - jy)) * 10;
 
                 bool found = false;
                 for (int j = 0; j < openNodes.Count; j++)
                 {
-                    if(openNodes[j].node == jumpPoint)
+                    if(openNodes[j].cell == jumpPoint)
                     {
                         found = true;
 
@@ -105,6 +105,7 @@ public class JPSPathRewritten
                 if (!found)
                 {
                     AStarNode jumpPointA = new AStarNode(jumpPoint, node, h, g, g + h);
+                    //jumpPoint.DrawPath(new Vector2Int(0, 0), new Vector2Int(1, 1), 10);
                     openNodes.Add(jumpPointA);
                 }
             }
@@ -112,7 +113,7 @@ public class JPSPathRewritten
     }
 
 
-    private Node Jump(int x, int y, int px, int py)
+    private Cell Jump(int x, int y, int px, int py)
     {
         int dx = x - px;
         int dy = y - py;
@@ -121,7 +122,7 @@ public class JPSPathRewritten
             return null;
 
         // JumpRecursionTrack???
-        Node xyNode = Manager.instance.grid.GetNodeGrid(new Vector2Int(x, y));
+        Cell xyNode = Manager.instance.grid.GetCellUsingGrid(new Vector2Int(x, y));
         if (xyNode == theTarget)
             return xyNode;
         
@@ -164,13 +165,13 @@ public class JPSPathRewritten
         AStarNode parent = node.parentNode;
         List<AStarNode> list = new List<AStarNode>();
 
-        Vector2Int nodePos = node.node.GetPosition();
+        Vector2Int nodePos = node.cell.GetPosition();
         int x = nodePos.x;
         int y = nodePos.y;
 
         if(parent != null)
         {
-            Vector2Int parentPos = parent.node.GetPosition();
+            Vector2Int parentPos = parent.cell.GetPosition();
             int px = parentPos.x;
             int py = parentPos.y;
 
@@ -181,49 +182,49 @@ public class JPSPathRewritten
             if (dx != 0 && dy != 0)
             {
                 if (Manager.instance.grid.WalkableAt(x, y + dy))
-                    list.Add(new AStarNode(Manager.instance.grid.GetNodeGrid(new Vector2Int(x, y + dy)), node));
+                    list.Add(new AStarNode(Manager.instance.grid.GetCellUsingGrid(new Vector2Int(x, y + dy)), node));
 
                 if (Manager.instance.grid.WalkableAt(x + dx, y))
-                    list.Add(new AStarNode(Manager.instance.grid.GetNodeGrid(new Vector2Int(x + dx, y)), node));
+                    list.Add(new AStarNode(Manager.instance.grid.GetCellUsingGrid(new Vector2Int(x + dx, y)), node));
 
                 if (Manager.instance.grid.WalkableAt(x + dx, y + dy))
-                    list.Add(new AStarNode(Manager.instance.grid.GetNodeGrid(new Vector2Int(x + dx, y + dy)), node));
+                    list.Add(new AStarNode(Manager.instance.grid.GetCellUsingGrid(new Vector2Int(x + dx, y + dy)), node));
 
                 if (!Manager.instance.grid.WalkableAt(x - dx, y))
-                    list.Add(new AStarNode(Manager.instance.grid.GetNodeGrid(new Vector2Int(x - dx, y + dy)), node));
+                    list.Add(new AStarNode(Manager.instance.grid.GetCellUsingGrid(new Vector2Int(x - dx, y + dy)), node));
 
                 if (!Manager.instance.grid.WalkableAt(x, y - dy))
-                    list.Add(new AStarNode(Manager.instance.grid.GetNodeGrid(new Vector2Int(x + dx, y - dy)), node));
+                    list.Add(new AStarNode(Manager.instance.grid.GetCellUsingGrid(new Vector2Int(x + dx, y - dy)), node));
             }
             else
             {
                 if (dx == 0)
                 {
                     if (Manager.instance.grid.WalkableAt(x, y + dy))
-                        list.Add(new AStarNode(Manager.instance.grid.GetNodeGrid(new Vector2Int(x, y + dy)), node));
+                        list.Add(new AStarNode(Manager.instance.grid.GetCellUsingGrid(new Vector2Int(x, y + dy)), node));
 
                     if (!Manager.instance.grid.WalkableAt(x + 1, y))
-                        list.Add(new AStarNode(Manager.instance.grid.GetNodeGrid(new Vector2Int(x + 1, y + dy)), node));
+                        list.Add(new AStarNode(Manager.instance.grid.GetCellUsingGrid(new Vector2Int(x + 1, y + dy)), node));
 
                     if (!Manager.instance.grid.WalkableAt(x - 1, y))
-                        list.Add(new AStarNode(Manager.instance.grid.GetNodeGrid(new Vector2Int(x - 1, y + dy)), node));
+                        list.Add(new AStarNode(Manager.instance.grid.GetCellUsingGrid(new Vector2Int(x - 1, y + dy)), node));
                 }
                 else
                 {
                     if (Manager.instance.grid.WalkableAt(x + dx, y))
-                        list.Add(new AStarNode(Manager.instance.grid.GetNodeGrid(new Vector2Int(x + dx, y)), node));
+                        list.Add(new AStarNode(Manager.instance.grid.GetCellUsingGrid(new Vector2Int(x + dx, y)), node));
 
                     if (!Manager.instance.grid.WalkableAt(x, y + 1))
-                        list.Add(new AStarNode(Manager.instance.grid.GetNodeGrid(new Vector2Int(x + dx, y + 1)), node));
+                        list.Add(new AStarNode(Manager.instance.grid.GetCellUsingGrid(new Vector2Int(x + dx, y + 1)), node));
 
                     if (!Manager.instance.grid.WalkableAt(x, y - 1))
-                        list.Add(new AStarNode(Manager.instance.grid.GetNodeGrid(new Vector2Int(x + dx, y - 1)), node));
+                        list.Add(new AStarNode(Manager.instance.grid.GetCellUsingGrid(new Vector2Int(x + dx, y - 1)), node));
                 }
             }
         }
         else
         {
-            List<Node> all = node.node.GetNeighbours();
+            List<Cell> all = node.cell.GetNeighbours();
             for (int i = 0; i < all.Count; i++)
             {
                 list.Add(new AStarNode(all[i], node));

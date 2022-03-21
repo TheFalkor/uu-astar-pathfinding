@@ -30,9 +30,9 @@ public class Starchaser : Entity
     [Header("Starchaser Tools")]
     private readonly AStarPath astarAlgorithm = new AStarPath();
     private readonly JPSPathRewritten jpsAlgorithm = new JPSPathRewritten();
-    private List<Node> path;
+    private List<Cell> path;
     private StarchaserState state = StarchaserState.PREPARE;
-    private Node target;
+    private Cell target;
     private Algorithm currentAlgorithm = Algorithm.ASTAR;
 
 
@@ -82,6 +82,7 @@ public class Starchaser : Entity
         starsSold = 0;
         allowDrawPath = true;
         haveStar = false;
+        wantStar = true;
         currentTime = 0;
 
         Manager.instance.UpdateStarUI(starsSold);
@@ -100,7 +101,7 @@ public class Starchaser : Entity
         {
             case StarchaserState.LOCATE_TARGET:
                 if(currentTime == 0)
-                    FindTarget(Manager.instance.grid.GetNodeReal(GetPosition()), target);
+                    FindTarget(Manager.instance.grid.GetCellUsingReal(GetPosition()), target);
 
                 currentTime += deltaTime * simulationSpeed;
                 if (currentTime >= WAIT_TIME)
@@ -205,11 +206,11 @@ public class Starchaser : Entity
     private void SetTarget(Entity entity)
     {
         UpdatePosition();
-        target = Manager.instance.grid.GetNodeReal(entity.GetPosition());
+        target = Manager.instance.grid.GetCellUsingReal(entity.GetPosition());
         state = StarchaserState.LOCATE_TARGET;
     }
 
-    private void FindTarget(Node start, Node end)
+    private void FindTarget(Cell start, Cell end)
     {
         if (currentAlgorithm == Algorithm.ASTAR)
             path = astarAlgorithm.CalculatePath(start, end);

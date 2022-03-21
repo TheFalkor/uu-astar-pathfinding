@@ -5,45 +5,45 @@ using UnityEngine;
 public class AStarPath
 {
     [Header("AStarPath Variables")]
-    private List<AStarNode> openNodes = new List<AStarNode>();
-    private List<AStarNode> closedNodes = new List<AStarNode>();
-    private readonly List<Node> path = new List<Node>();
+    private List<AStarNode> openList = new List<AStarNode>();
+    private List<AStarNode> closedList = new List<AStarNode>();
+    private readonly List<Cell> path = new List<Cell>();
 
-    public List<Node> CalculatePath(Node startNode, Node targetNode)
+    public List<Cell> CalculatePath(Cell start, Cell target)
     {
-        openNodes.Clear();
-        closedNodes.Clear();
+        openList.Clear();
+        closedList.Clear();
         path.Clear();
 
         Manager.instance.grid.ClearDebug();
-        Vector2Int targetPosition = targetNode.GetPosition();
+        Vector2Int targetPosition = target.GetPosition();
 
-        openNodes.Add(new AStarNode(startNode));
+        openList.Add(new AStarNode(start));
 
         bool targetFound = false;
-        while (openNodes.Count > 0 && !targetFound)
+        while (openList.Count > 0 && !targetFound)
         {
             int nodeIndex = 0;
-            for (int i = 0; i < openNodes.Count; i++)
+            for (int i = 0; i < openList.Count; i++)
             {
-                if (openNodes[i].f < openNodes[nodeIndex].f)
+                if (openList[i].f < openList[nodeIndex].f)
                     nodeIndex = i;
             }
 
-            AStarNode currentNode = openNodes[nodeIndex];
+            AStarNode currentNode = openList[nodeIndex];
 
-            openNodes.Remove(currentNode);
-            List<Node> neighbourList = currentNode.node.GetNeighbours();
+            openList.Remove(currentNode);
+            List<Cell> neighbourList = currentNode.cell.GetNeighbours();
 
             for (int i = 0; i < neighbourList.Count; i++)
             {
-                if (neighbourList[i] == targetNode)
+                if (neighbourList[i] == target)
                 {
                     path.Add(neighbourList[i]);
                     targetFound = true;
                     while (currentNode != null)
                     {
-                        path.Add(currentNode.node);
+                        path.Add(currentNode.cell);
                         currentNode = currentNode.parentNode;
                     }
                     break;
@@ -53,7 +53,7 @@ public class AStarPath
                     if (neighbourList[i].blocked || !neighbourList[i].visible)
                         continue;
 
-                    Vector2Int currentPos = currentNode.node.GetPosition();
+                    Vector2Int currentPos = currentNode.cell.GetPosition();
                     Vector2Int neighbourPosition = neighbourList[i].GetPosition();
 
                     int scuffed = Mathf.Abs(currentPos.x - neighbourPosition.x) + Mathf.Abs(currentPos.y - neighbourPosition.y);
@@ -66,16 +66,16 @@ public class AStarPath
                     int f = g + h;
 
                     bool handled = false;
-                    for (int j = 0; j < openNodes.Count; j++)
+                    for (int j = 0; j < openList.Count; j++)
                     {
-                        if (openNodes[j].node.GetPosition() == neighbourList[i].GetPosition())
+                        if (openList[j].cell.GetPosition() == neighbourList[i].GetPosition())
                         {
-                            if (f < openNodes[j].f)
+                            if (f < openList[j].f)
                             {
-                                openNodes[j].f = f;
-                                openNodes[j].g = g;
-                                openNodes[j].h = h;
-                                openNodes[j].parentNode = currentNode;
+                                openList[j].f = f;
+                                openList[j].g = g;
+                                openList[j].h = h;
+                                openList[j].parentNode = currentNode;
                             }
                             handled = true;
                             break;
@@ -84,14 +84,14 @@ public class AStarPath
 
                     if (!handled)
                     {
-                        for (int j = 0; j < closedNodes.Count; j++)
+                        for (int j = 0; j < closedList.Count; j++)
                         {
-                            if (closedNodes[j].node.GetPosition() == neighbourList[i].GetPosition())
+                            if (closedList[j].cell.GetPosition() == neighbourList[i].GetPosition())
                             {
                                 //handled = true;
-                                if(f >= closedNodes[j].f)
+                                if(f >= closedList[j].f)
                                 {
-                                    handled = true; // This makes it very slow in some cases because it repeats same node multiple times.
+                                    handled = true; // This makes it very slow in some cases because it repeats same cell multiple times.
                                 }                   // Is it even necessary?
                                 break;
                             }
@@ -100,13 +100,13 @@ public class AStarPath
 
                     if (!handled)
                     {
-                        openNodes.Add(new AStarNode(neighbourList[i], currentNode, h, g, f));
+                        openList.Add(new AStarNode(neighbourList[i], currentNode, h, g, f));
                     }
                 }
             }
 
             if(!targetFound)
-                closedNodes.Add(currentNode);
+                closedList.Add(currentNode);
         }
 
         path.Reverse();

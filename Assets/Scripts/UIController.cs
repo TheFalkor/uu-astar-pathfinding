@@ -56,12 +56,12 @@ public class UIController : MonoBehaviour
 
     public void GridFill()
     {
-        Manager.instance.grid.FillNodes();
+        Manager.instance.grid.FillCells();
     }
 
     public void GridClear()
     {
-        Manager.instance.grid.ClearNodes();
+        Manager.instance.grid.ClearCells();
     }
 
     public void RandomizeEntityPositions()
