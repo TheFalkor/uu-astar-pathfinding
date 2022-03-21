@@ -50,30 +50,30 @@ public class GridController
             if (i / ROW_COUNT != 0)
             {
                 if (i % ROW_COUNT != 0)
-                    cell.AddNeighbour(cellArray[i - ROW_COUNT - 1]);    // NW
+                    cell.AddNeighbor(cellArray[i - ROW_COUNT - 1]);    // NW
 
-                cell.AddNeighbour(cellArray[i - ROW_COUNT]);            // N
+                cell.AddNeighbor(cellArray[i - ROW_COUNT]);            // N
 
                 if (i % ROW_COUNT != ROW_COUNT - 1)
-                    cell.AddNeighbour(cellArray[i - ROW_COUNT + 1]);    // NE
+                    cell.AddNeighbor(cellArray[i - ROW_COUNT + 1]);    // NE
             }
 
             if (i % ROW_COUNT != ROW_COUNT - 1)
-                cell.AddNeighbour(cellArray[i + 1]);                    // E
+                cell.AddNeighbor(cellArray[i + 1]);                    // E
 
             if (i / ROW_COUNT != ROW_COUNT - 1)
             {
                 if (i % ROW_COUNT != ROW_COUNT - 1)
-                    cell.AddNeighbour(cellArray[i + ROW_COUNT + 1]);    // SE
+                    cell.AddNeighbor(cellArray[i + ROW_COUNT + 1]);    // SE
 
-                cell.AddNeighbour(cellArray[i + ROW_COUNT]);            //S
+                cell.AddNeighbor(cellArray[i + ROW_COUNT]);            //S
 
                 if (i % ROW_COUNT != 0)
-                    cell.AddNeighbour(cellArray[i + ROW_COUNT - 1]);    // SW
+                    cell.AddNeighbor(cellArray[i + ROW_COUNT - 1]);    // SW
             }
 
             if (i % ROW_COUNT != 0)
-                cell.AddNeighbour(cellArray[i - 1]);                    // W
+                cell.AddNeighbor(cellArray[i - 1]);                    // W
 
         }
     }
@@ -220,12 +220,12 @@ public class GridController
         return cellArray[index].GetEntity();
     }
 
-    public Cell GetCellUsingGrid(Vector2Int position)
+    public Cell GetCellUsingGrid(int x, int y)
     {
-        if (position.x < 0 || position.x >= ROW_COUNT || position.y < 0 || position.y >= ROW_COUNT)
+        if (x < 0 || x >= ROW_COUNT || y < 0 || y >= ROW_COUNT)
             return null;
 
-        int index = position.x % ROW_COUNT + position.y * ROW_COUNT;
+        int index = x % ROW_COUNT + y * ROW_COUNT;
         return cellArray[index];
     }
 

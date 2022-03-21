@@ -14,7 +14,7 @@ public class Cell : MonoBehaviour
 
 
     [Header("Cell Variables")]
-    private readonly List<Cell> neighbourList = new List<Cell>();
+    private readonly List<Cell> neighborList = new List<Cell>();
     private Vector2Int position;
     private Vector2Int realPosition;
     private Entity occupyingEntity;
@@ -34,14 +34,14 @@ public class Cell : MonoBehaviour
     }
 
 
-    public void AddNeighbour(Cell cell)
+    public void AddNeighbor(Cell cell)
     {
-        neighbourList.Add(cell);
+        neighborList.Add(cell);
     }
 
-    public List<Cell> GetNeighbours()
+    public List<Cell> GetNeighbors()
     {
-        return neighbourList;
+        return neighborList;
     }
 
 

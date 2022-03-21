@@ -9,6 +9,7 @@ public class AStarPath
     private List<AStarNode> closedList = new List<AStarNode>();
     private readonly List<Cell> path = new List<Cell>();
 
+
     public List<Cell> CalculatePath(Cell start, Cell target)
     {
         openList.Clear();
@@ -16,12 +17,13 @@ public class AStarPath
         path.Clear();
 
         Manager.instance.grid.ClearDebug();
+
         Vector2Int targetPosition = target.GetPosition();
 
         openList.Add(new AStarNode(start));
 
-        bool targetFound = false;
-        while (openList.Count > 0 && !targetFound)
+
+        while (openList.Count > 0)
         {
             int nodeIndex = 0;
             for (int i = 0; i < openList.Count; i++)
@@ -33,34 +35,35 @@ public class AStarPath
             AStarNode currentNode = openList[nodeIndex];
 
             openList.Remove(currentNode);
-            List<Cell> neighbourList = currentNode.cell.GetNeighbours();
+            List<Cell> neighborList = currentNode.cell.GetNeighbors();
 
-            for (int i = 0; i < neighbourList.Count; i++)
+            for (int i = 0; i < neighborList.Count; i++)
             {
-                if (neighbourList[i] == target)
+                if (neighborList[i] == target)
                 {
-                    path.Add(neighbourList[i]);
-                    targetFound = true;
+                    path.Add(neighborList[i]);
                     while (currentNode != null)
                     {
                         path.Add(currentNode.cell);
                         currentNode = currentNode.parentNode;
                     }
-                    break;
+
+                    path.Reverse();
+                    return path;
                 }
                 else
                 {
-                    if (neighbourList[i].blocked || !neighbourList[i].visible)
+                    if (neighborList[i].blocked || !neighborList[i].visible)
                         continue;
 
                     Vector2Int currentPos = currentNode.cell.GetPosition();
-                    Vector2Int neighbourPosition = neighbourList[i].GetPosition();
+                    Vector2Int neighborPosition = neighborList[i].GetPosition();
 
-                    int scuffed = Mathf.Abs(currentPos.x - neighbourPosition.x) + Mathf.Abs(currentPos.y - neighbourPosition.y);
+                    int scuffed = Mathf.Abs(currentPos.x - neighborPosition.x) + Mathf.Abs(currentPos.y - neighborPosition.y);
                     int g = currentNode.g;
                     g += scuffed == 1 ? 10 : 14;
 
-                    int h = Mathf.Abs(targetPosition.x - neighbourPosition.x) + Mathf.Abs(targetPosition.y - neighbourPosition.y);
+                    int h = Mathf.Abs(targetPosition.x - neighborPosition.x) + Mathf.Abs(targetPosition.y - neighborPosition.y);
                     h *= 10;
 
                     int f = g + h;
@@ -68,7 +71,7 @@ public class AStarPath
                     bool handled = false;
                     for (int j = 0; j < openList.Count; j++)
                     {
-                        if (openList[j].cell.GetPosition() == neighbourList[i].GetPosition())
+                        if (openList[j].cell.GetPosition() == neighborList[i].GetPosition())
                         {
                             if (f < openList[j].f)
                             {
@@ -86,13 +89,12 @@ public class AStarPath
                     {
                         for (int j = 0; j < closedList.Count; j++)
                         {
-                            if (closedList[j].cell.GetPosition() == neighbourList[i].GetPosition())
+                            if (closedList[j].cell.GetPosition() == neighborList[i].GetPosition())
                             {
-                                //handled = true;
                                 if(f >= closedList[j].f)
                                 {
-                                    handled = true; // This makes it very slow in some cases because it repeats same cell multiple times.
-                                }                   // Is it even necessary?
+                                    handled = true;
+                                }
                                 break;
                             }
                         }
@@ -100,16 +102,14 @@ public class AStarPath
 
                     if (!handled)
                     {
-                        openList.Add(new AStarNode(neighbourList[i], currentNode, h, g, f));
+                        openList.Add(new AStarNode(neighborList[i], currentNode, h, g, f));
                     }
                 }
             }
 
-            if(!targetFound)
-                closedList.Add(currentNode);
+            closedList.Add(currentNode);
         }
 
-        path.Reverse();
 
         return path;
     }

@@ -29,7 +29,7 @@ public class Starchaser : Entity
 
     [Header("Starchaser Tools")]
     private readonly AStarPath astarAlgorithm = new AStarPath();
-    private readonly JPSPathRewritten jpsAlgorithm = new JPSPathRewritten();
+    private readonly JPSPath jpsAlgorithm = new JPSPath();
     private List<Cell> path;
     private StarchaserState state = StarchaserState.PREPARE;
     private Cell target;
@@ -176,8 +176,13 @@ public class Starchaser : Entity
             }
                 else
                 {
-                    wantStar = true;
-                    SetTarget(star);
+                    if (currentStamina > 0)
+                    {
+                        wantStar = true;
+                        SetTarget(star);
+                    }
+                    else
+                        SetTarget(spaceship);
                 }
                 break;
 
