@@ -133,6 +133,7 @@ public class Starchaser : Entity
                 
                 if (transform.position == (Vector3)currentTargetPosition)
                 {
+                    path[curPathIndex].ClearPath();
                     if(curPathIndex == path.Count - 1)
                     {
                         if (haveStar)
@@ -140,6 +141,7 @@ public class Starchaser : Entity
                             currentStamina--;
                             Manager.instance.UpdateStaminaUI(currentStamina);
                         }
+
 
                         state = StarchaserState.PREPARE;
                     }
