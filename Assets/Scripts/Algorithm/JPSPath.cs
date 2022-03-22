@@ -52,7 +52,7 @@ public class JPSPath
                 }
 
                 path.Reverse();
-                return path;
+                return FillPath(path);
             }
 
             IdentifySuccessors(current);
@@ -201,6 +201,34 @@ public class JPSPath
         }
 
         return list;
+    }
+
+
+    private List<Cell> FillPath(List<Cell> path)
+    {
+        if (path.Count == 0)
+            return path;
+
+        List<Cell> newPath = new List<Cell>();
+
+        newPath.Add(path[0]);
+
+        for (int i = 0; i < path.Count - 1; i++)
+        {
+            if (i != 0 && i != path.Count - 1)
+                path[i].SetNodeMarker();
+
+            int dx = Mathf.Clamp(path[i + 1].GetPosition().x - path[i].GetPosition().x, -1, 1);
+            int dy = Mathf.Clamp(path[i + 1].GetPosition().y - path[i].GetPosition().y, -1, 1);
+
+            while (newPath[newPath.Count - 1] != path[i + 1])
+            {
+                Vector2Int position = newPath[newPath.Count - 1].GetPosition();
+                newPath.Add(grid.GetCellUsingGrid(position.x + dx, position.y + dy));
+            }
+        }
+
+        return newPath;
     }
 
 

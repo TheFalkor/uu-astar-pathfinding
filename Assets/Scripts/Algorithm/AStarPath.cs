@@ -49,6 +49,9 @@ public class AStarPath
                     currentNode = currentNode.parentNode;
                 }
 
+                for (int i = 1; i < path.Count - 1; i++)
+                    path[i].SetNodeMarker();
+
                 path.Reverse();
                 return path;
             }

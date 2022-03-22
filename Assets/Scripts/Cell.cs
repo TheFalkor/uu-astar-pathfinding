@@ -11,6 +11,7 @@ public class Cell : MonoBehaviour
     private Animator anim;
     private PathVisualizer pathVisualizerIn;
     private PathVisualizer pathVisualizerOut;
+    public GameObject cellNodeVisual;
 
 
     [Header("Cell Variables")]
@@ -29,8 +30,12 @@ public class Cell : MonoBehaviour
         anim = GetComponent<Animator>();
         realPosition = Vector2Int.RoundToInt(transform.position);
 
-        pathVisualizerIn = transform.GetChild(0).GetComponent<PathVisualizer>();
-        pathVisualizerOut = transform.GetChild(1).GetComponent<PathVisualizer>();
+        cellNodeVisual = transform.GetChild(0).gameObject;
+        pathVisualizerIn = transform.GetChild(1).GetComponent<PathVisualizer>();
+        pathVisualizerOut = transform.GetChild(2).GetComponent<PathVisualizer>();
+
+        cellNodeVisual.SetActive(false);
+        SetNodeMarker();
     }
 
 
@@ -132,8 +137,14 @@ public class Cell : MonoBehaviour
         pathVisualizerOut.DrawPath(next, stamina > 1);
     }
 
+    public void SetNodeMarker()
+    {
+        cellNodeVisual.SetActive(true);
+    }
+
     public void ClearPath()
     {
+        cellNodeVisual.SetActive(false);
         pathVisualizerIn.ClearPath();
         pathVisualizerOut.ClearPath();
     }
